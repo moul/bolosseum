@@ -1,10 +1,15 @@
 package main
 
 import (
+	"fmt"
 	"os"
+
+	// games
+	_ "github.com/moul/bolosseum/games/coinflip"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/moul/bolosseum"
+	"github.com/moul/bolosseum/games"
 	"github.com/urfave/cli"
 )
 
@@ -24,8 +29,22 @@ func main() {
 					return cli.NewExitError("You need to specify the game", -1)
 				}
 
-				game := args[0]
-				logrus.Warnf("Initializing game %q", game)
+				gameName := args[0]
+				logrus.Warnf("Initializing game %q", gameName)
+
+				found := false
+				var game *games.Game
+				for _, entry := range games.RegisteredGames {
+					if entry.Name == gameName {
+						game = entry
+						found = true
+						break
+					}
+				}
+				if !found {
+					return cli.NewExitError(fmt.Sprintf("No such game %q", gameName), -1)
+				}
+				logrus.Warnf("Game: %q", game)
 
 				// temporarily hardcoded check
 				if len(args) < 3 {
