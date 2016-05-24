@@ -14,6 +14,7 @@ import (
 	"github.com/moul/bolosseum/games"
 	"github.com/moul/bolosseum/games/coinflip"
 	"github.com/moul/bolosseum/games/connectfour"
+	"github.com/moul/bolosseum/games/russianbullet"
 	"github.com/moul/bolosseum/games/tictactoe"
 	"github.com/urfave/cli"
 )
@@ -29,6 +30,8 @@ func getGame(gameName string) (games.Game, error) {
 		return coinflip.NewGame()
 	case "connectfour":
 		return connectfour.NewGame()
+	case "russianbullet":
+		return russianbullet.NewGame()
 	case "tictactoe":
 		return tictactoe.NewGame()
 	default:
@@ -94,7 +97,7 @@ func run(c *cli.Context) error {
 
 	// initialize bots
 	hasError := false
-	for _, botPath := range args[1:3] {
+	for _, botPath := range args[1:] {
 		bot, err := getBot(botPath)
 		if err != nil {
 			hasError = true

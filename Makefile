@@ -10,6 +10,11 @@ test-coinflip: bolosseum
 	./bolosseum run coinflip file://./test/coinflip.sh file://./test/coinflip.sh
 
 
+.PHONY: test-russianbullet
+test-russianbullet: bolosseum
+	./bolosseum run russianbullet file://./test/russianbullet.sh file://./test/russianbullet.sh
+
+
 .PHONY: test-tictactoe
 test-tictactoe: bolosseum test/tictactoe
 	./bolosseum run tictactoe file://./test/tictactoe file://./test/tictactoe
