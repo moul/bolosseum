@@ -3,17 +3,18 @@ package connectfour
 import (
 	"fmt"
 
+	"github.com/moul/bolosseum/bots"
 	"github.com/moul/bolosseum/games"
 )
 
 type ConnectfourGame struct {
-	games.Game
+	games.BotsBasedGame
 }
 
 func NewGame() (*ConnectfourGame, error) {
-	return &ConnectfourGame{
-	//Game: games.Game{},
-	}, nil
+	game := ConnectfourGame{}
+	game.Bots = make([]bots.Bot, 0)
+	return &game, nil
 }
 
 func (g *ConnectfourGame) CheckArgs(args []string) error {
@@ -23,8 +24,14 @@ func (g *ConnectfourGame) CheckArgs(args []string) error {
 	return nil
 }
 
-func (g *ConnectfourGame) Run() error {
-	fmt.Println("COUCOU")
+func (g *ConnectfourGame) Run(gameID string) error {
+	if err := bots.InitTurnBasedBots(g.Bots, g.Name(), gameID); err != nil {
+		return err
+	}
+
+	// play
+	// FIXME
+
 	return nil
 }
 

@@ -8,15 +8,13 @@ import (
 )
 
 type CoinflipGame struct {
-	games.Game
-
-	bots []bots.Bot
+	games.BotsBasedGame
 }
 
 func NewGame() (*CoinflipGame, error) {
-	return &CoinflipGame{
-		bots: make([]bots.Bot, 0),
-	}, nil
+	game := CoinflipGame{}
+	game.Bots = make([]bots.Bot, 0)
+	return &game, nil
 }
 
 func (g *CoinflipGame) CheckArgs(args []string) error {
@@ -26,30 +24,9 @@ func (g *CoinflipGame) CheckArgs(args []string) error {
 	return nil
 }
 
-func (g *CoinflipGame) Run() error {
-	// start bots
-	for _, bot := range g.bots {
-		if err := bot.Start(); err != nil {
-			return err
-		}
-	}
-
-	// send init message to bots
-	for _, bot := range g.bots {
-		reply, err := bot.SendMessage(bots.QuestionMessage{
-			GameID:  "test",
-			Action:  "init",
-			Game:    g.Name(),
-			Players: len(g.bots),
-		})
-		if err != nil {
-			return err
-		}
-
-		// parse reply
-		if reply.Name != "" {
-			bot.SetName(reply.Name)
-		}
+func (g *CoinflipGame) Run(gameID string) error {
+	if err := bots.InitTurnBasedBots(g.Bots, g.Name(), gameID); err != nil {
+		return err
 	}
 
 	// play
@@ -60,8 +37,4 @@ func (g *CoinflipGame) Run() error {
 
 func (g *CoinflipGame) Name() string {
 	return "coinflip"
-}
-
-func (g *CoinflipGame) RegisterBot(bot bots.Bot) {
-	g.bots = append(g.bots, bot)
 }

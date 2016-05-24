@@ -100,7 +100,7 @@ func run(c *cli.Context) error {
 	}
 
 	// run
-	if err = game.Run(); err != nil {
+	if err = game.Run("gameid"); err != nil {
 		logrus.Errorf("Run error: %v", err)
 	}
 
