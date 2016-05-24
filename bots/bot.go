@@ -9,15 +9,17 @@ type Bot interface {
 }
 
 type QuestionMessage struct {
-	GameID  string `json:"game-id"`
-	Action  string `json:"action"`
-	Game    string `json:"game"`
-	Players int    `json:"players"`
+	GameID      string      `json:"game-id"`
+	Action      string      `json:"action"`
+	Game        string      `json:"game"`
+	Players     int         `json:"players"`
+	Board       interface{} `json:"board"`
+	PlayerIndex int         `json:"player-index"`
 }
 
 type ReplyMessage struct {
 	Name string      `json:"name"`
-	Play interface{} `json:"data"`
+	Play interface{} `json:"play"`
 }
 
 // InitTurnBasedBots is an helper that starts and discovers connected bots
@@ -30,12 +32,13 @@ func InitTurnBasedBots(bots []Bot, gameName, gameID string) error {
 	}
 
 	// send init message to bots
-	for _, bot := range bots {
+	for idx, bot := range bots {
 		reply, err := bot.SendMessage(QuestionMessage{
-			GameID:  gameID,
-			Action:  "init",
-			Game:    gameName,
-			Players: len(bots),
+			GameID:      gameID,
+			Action:      "init",
+			Game:        gameName,
+			Players:     len(bots),
+			PlayerIndex: idx,
 		})
 		if err != nil {
 			return err

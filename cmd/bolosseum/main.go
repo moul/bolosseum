@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/moul/bolosseum"
@@ -53,6 +55,10 @@ func getBot(botPath string) (bots.Bot, error) {
 }
 
 func main() {
+	// seed random
+	rand.Seed(time.Now().UTC().UnixNano())
+
+	// configure CLI
 	app := cli.NewApp()
 	app.Name = "bolosseum"
 	app.Usage = "colosseum for bots"

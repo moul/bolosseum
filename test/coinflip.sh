@@ -13,7 +13,14 @@ case $action in
     init)
         send '{"name": "bot1"}'
         ;;
+    play-turn)
+        if [ "$(( ( RANDOM % 2 ) ))" = "1" ]; then
+            send '{"play": "head"}'
+        else
+            send '{"play": "ship"}'
+        fi
+        ;;
     *)
-        send '{"error": "not implemented action: $action"}'
+        send '{"error": "not implemented action: '${action}'"}'
         ;;
 esac
