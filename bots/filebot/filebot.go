@@ -2,6 +2,7 @@ package filebot
 
 import (
 	"encoding/json"
+	"os"
 	"os/exec"
 	"strings"
 
@@ -35,6 +36,7 @@ func (b *FileBot) SendMessage(msg bots.QuestionMessage) (*bots.ReplyMessage, err
 
 	// execute script
 	cmd := exec.Command(b.path, string(data))
+	cmd.Stderr = os.Stderr
 	body, err := cmd.Output()
 	if err != nil {
 		return nil, err
