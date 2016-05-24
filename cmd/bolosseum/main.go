@@ -12,6 +12,7 @@ import (
 	"github.com/moul/bolosseum/games"
 	"github.com/moul/bolosseum/games/coinflip"
 	"github.com/moul/bolosseum/games/connectfour"
+	"github.com/moul/bolosseum/games/tictactoe"
 	"github.com/urfave/cli"
 )
 
@@ -26,6 +27,8 @@ func getGame(gameName string) (games.Game, error) {
 		return coinflip.NewGame()
 	case "connectfour":
 		return connectfour.NewGame()
+	case "tictactoe":
+		return tictactoe.NewGame()
 	default:
 		return nil, fmt.Errorf("")
 	}
