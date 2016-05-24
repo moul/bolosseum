@@ -14,6 +14,7 @@ type QuestionMessage struct {
 	Game        string      `json:"game"`
 	Players     int         `json:"players"`
 	Board       interface{} `json:"board"`
+	You         interface{} `json:"you"`
 	PlayerIndex int         `json:"player-index"`
 }
 
