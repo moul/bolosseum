@@ -4,7 +4,6 @@ import "github.com/moul/bolosseum/bots"
 
 type BotsBasedGame struct {
 	Game
-
 	Bots []bots.Bot
 }
 
