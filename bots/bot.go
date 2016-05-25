@@ -19,8 +19,9 @@ type QuestionMessage struct {
 }
 
 type ReplyMessage struct {
-	Name string      `json:"name"`
-	Play interface{} `json:"play"`
+	Name  string      `json:"name"`
+	Play  interface{} `json:"play"`
+	Error interface{} `json:"error"`
 }
 
 // InitTurnBasedBots is an helper that starts and discovers connected bots

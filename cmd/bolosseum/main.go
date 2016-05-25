@@ -11,6 +11,7 @@ import (
 	"github.com/moul/bolosseum"
 	"github.com/moul/bolosseum/bots"
 	"github.com/moul/bolosseum/bots/filebot"
+	"github.com/moul/bolosseum/bots/httpbot"
 	"github.com/moul/bolosseum/games"
 	"github.com/moul/bolosseum/games/coinflip"
 	"github.com/moul/bolosseum/games/connectfour"
@@ -52,6 +53,8 @@ func getBot(botPath string) (bots.Bot, error) {
 	switch scheme {
 	case "file":
 		return filebot.NewBot(path)
+	case "http":
+		return httpbot.NewBot(path)
 	default:
 		return nil, fmt.Errorf("invalid bot scheme: %q (%q)", scheme, path)
 	}
