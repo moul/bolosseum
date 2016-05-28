@@ -9,13 +9,13 @@ type Bot interface {
 }
 
 type QuestionMessage struct {
-	GameID      string      `json:"game-id",omitempty`
-	Action      string      `json:"action",omitempty`
-	Game        string      `json:"game",omitempty`
+	GameID      string      `json:"game-id",omitempty binding:"required"`
+	Action      string      `json:"action",omitempty binding:"required"`
+	Game        string      `json:"game",omitempty binding:"required"`
 	Players     int         `json:"players",omitempty`
 	Board       interface{} `json:"board",omitempty`
 	You         interface{} `json:"you",omitempty`
-	PlayerIndex int         `json:"player-index",omitempty`
+	PlayerIndex int         `json:"player-index",omitempty binding:"required"`
 }
 
 type ReplyMessage struct {
