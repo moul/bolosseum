@@ -70,6 +70,11 @@ $ bolosseum run tictactoe http://showcase.m.42.am/bolosseum-tictactoe http://sho
 * `http+get://`: execute a GET request on a remote http server with the json as *message* query (`?message={"blah":...}`)
 * `https+get://`: same as above with SSL
 
+## Bots examples
+
+* [moul/tictactoe](https://github.com/moul/tictactoe/blob/master/cmd/tictactoe-bolosseum/main.go) (Golang)
+* [moul/showcase](https://github.com/moul/showcase/blob/master/bolosseum.go) (Golang)
+
 ## Install
 
 ```console
