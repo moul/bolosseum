@@ -11,8 +11,9 @@ import (
 )
 
 type HttpBot struct {
-	path string
-	name string
+	path   string
+	name   string
+	method string
 }
 
 func (b *HttpBot) Name() string {
@@ -34,11 +35,21 @@ func (b *HttpBot) SendMessage(msg bots.QuestionMessage) (*bots.ReplyMessage, err
 		return nil, err
 	}
 
-	var query struct {
-		Message string `json:"message"`
+	var resp gorequest.Response
+	var body string
+	var errs []error
+	switch b.method {
+	case "GET":
+		var query struct {
+			Message string `json:"message"`
+		}
+		query.Message = string(data)
+		resp, body, errs = gorequest.New().Get(b.path).Query(query).End()
+		break
+	case "POST":
+		resp, body, errs = gorequest.New().Type("json").Post(b.path).Send(msg).End()
+		break
 	}
-	query.Message = string(data)
-	resp, body, errs := gorequest.New().Get(b.path).Query(query).End()
 	if len(errs) > 0 {
 		return nil, fmt.Errorf("gorequest errs: %v", errs)
 	}
@@ -59,8 +70,9 @@ func (b *HttpBot) Start() error {
 	return nil
 }
 
-func NewBot(path string) (*HttpBot, error) {
+func NewBot(path, method, scheme string) (*HttpBot, error) {
 	return &HttpBot{
-		path: fmt.Sprintf("http://%s", path),
+		path:   fmt.Sprintf("%s://%s", scheme, path),
+		method: method,
 	}, nil
 }
