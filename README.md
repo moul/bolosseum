@@ -62,6 +62,14 @@ $ bolosseum run tictactoe http://showcase.m.42.am/bolosseum-tictactoe http://sho
 [0002] Draw
 ```
 
+### Supported schemes:
+
+* `file://`: execute local script by passing the json as `argv[1]`
+* `http://` or `http+post://`: execute a POST request on a remote http server with the json as body
+* `https://` or `https+post://`: same as above with SSL
+* `http+get://`: execute a GET request on a remote http server with the json as *message* query (`?message={"blah":...}`)
+* `https+get://`: same as above with SSL
+
 ## Install
 
 ```console
