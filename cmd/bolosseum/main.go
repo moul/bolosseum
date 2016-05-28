@@ -53,10 +53,14 @@ func getBot(botPath string) (bots.Bot, error) {
 	switch scheme {
 	case "file":
 		return filebot.NewBot(path)
-	case "http":
+	case "http+get":
 		return httpbot.NewBot(path, "GET", "http")
-	case "http+post":
+	case "http+post", "http":
 		return httpbot.NewBot(path, "POST", "http")
+	case "https+get":
+		return httpbot.NewBot(path, "GET", "https")
+	case "https+post", "https":
+		return httpbot.NewBot(path, "POST", "https")
 	default:
 		return nil, fmt.Errorf("invalid bot scheme: %q (%q)", scheme, path)
 	}
