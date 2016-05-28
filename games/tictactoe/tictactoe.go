@@ -13,7 +13,7 @@ var pieces = []string{"X", "O"}
 type TictactoeGame struct {
 	games.BotsBasedGame
 
-	board map[string]string
+	board map[string]string `json:"board",omitempty`
 }
 
 func NewGame() (*TictactoeGame, error) {
