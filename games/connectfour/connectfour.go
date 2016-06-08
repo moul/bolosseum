@@ -3,17 +3,28 @@ package connectfour
 import (
 	"fmt"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/moul/bolosseum/bots"
 	"github.com/moul/bolosseum/games"
 )
 
+var pieces = []string{"X", "O"}
+var Rows = 6
+var Cols = 7
+
 type ConnectfourGame struct {
 	games.BotsBasedGame
+
+	board [][]string `json:"board",omitempty`
 }
 
 func NewGame() (*ConnectfourGame, error) {
 	game := ConnectfourGame{}
 	game.Bots = make([]bots.Bot, 0)
+	game.board = make([][]string, Rows)
+	for i := 0; i < Rows; i++ {
+		game.board[i] = make([]string, Cols)
+	}
 	return &game, nil
 }
 
@@ -24,14 +35,83 @@ func (g *ConnectfourGame) CheckArgs(args []string) error {
 	return nil
 }
 
+func (g *ConnectfourGame) checkBoard() (bots.Bot, error) {
+	for idx, piece := range pieces {
+		// horizontal
+		for y := 0; y < Rows; y++ {
+			continuous := 0
+			for x := 0; x < Cols; x++ {
+				if g.board[y][x] == piece {
+					continuous++
+					if continuous == 4 {
+						return g.Bots[idx], nil
+					}
+				} else {
+					continuous = 0
+				}
+			}
+		}
+
+		// vertical
+		// FIXME
+
+		// diagonals
+		// FIXME
+	}
+	return nil, nil
+}
+
 func (g *ConnectfourGame) Run(gameID string) error {
 	if err := bots.InitTurnBasedBots(g.Bots, g.Name(), gameID); err != nil {
 		return err
 	}
 
 	// play
-	// FIXME
+	for turn := 0; ; turn++ {
+		idx := turn % 2
+		bot := g.Bots[idx]
+		piece := pieces[idx]
 
+		reply, err := bot.SendMessage(bots.QuestionMessage{
+			GameID:      gameID,
+			Game:        g.Name(),
+			Action:      "play-turn",
+			Board:       g.board,
+			You:         piece,
+			PlayerIndex: idx,
+		})
+		if err != nil {
+			return err
+		}
+
+		x := int(reply.Play.(float64))
+		placed := false
+		for y := Rows - 1; y >= 0; y-- {
+			if g.board[y][x] == "" {
+				g.board[y][x] = piece
+				placed = true
+				break
+			}
+			if placed {
+				break
+			}
+		}
+		if !placed {
+			return fmt.Errorf("Invalid location")
+		}
+
+		// check board
+		winner, err := g.checkBoard()
+		if err != nil {
+			return err
+		}
+		if winner != nil {
+			logrus.Warnf("Player %d (%s) won", idx, winner.Name())
+			return nil
+		}
+	}
+
+	logrus.Warnf("Draw")
 	return nil
 }
 
