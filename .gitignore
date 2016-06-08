@@ -1,5 +1,6 @@
 /bolosseum
 test/tictactoe*
+test/connect-four
 
 # Compiled Object files, Static and Dynamic libs (Shared Objects)
 *.o

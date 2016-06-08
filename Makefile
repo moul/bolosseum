@@ -23,3 +23,13 @@ test-tictactoe: bolosseum test/tictactoe
 test/tictactoe:
 	go get github.com/moul/tictactoe/cmd/tictactoe-bolosseum
 	ln -s $(GOPATH)/bin/tictactoe-bolosseum $@
+
+
+.PHONY: test-connect-four
+test-connectfour: bolosseum test/connect-four
+	./bolosseum run connectfour file://./test/connect-four file://./test/connect-four
+
+
+test/connect-four:
+	go get github.com/moul/connect-four/cmd/connect-four
+	ln -s $(GOPATH)/bin/connect-four $@
