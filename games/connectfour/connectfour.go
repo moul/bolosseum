@@ -53,10 +53,36 @@ func (g *ConnectfourGame) checkBoard() (bots.Bot, error) {
 		}
 
 		// vertical
-		// FIXME
+		for x := 0; x < Cols; x++ {
+			continuous := 0
+			for y := 0; y < Rows; y++ {
+				if g.board[y][x] == piece {
+					continuous++
+					if continuous == 4 {
+						return g.Bots[idx], nil
+					}
+				} else {
+					continuous = 0
+				}
+			}
+		}
 
 		// diagonals
-		// FIXME
+		for y := 0; y < Rows-4; y++ {
+			for x := 0; x < Cols-4; x++ {
+				continuous := 0
+				for i := 0; i < 4; i++ {
+					if g.board[y+i][x+i] == piece {
+						continuous++
+						if continuous == 4 {
+							return g.Bots[idx], nil
+						}
+					} else {
+						continuous = 0
+					}
+				}
+			}
+		}
 	}
 	return nil, nil
 }
