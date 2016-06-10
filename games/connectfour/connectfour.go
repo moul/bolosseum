@@ -86,7 +86,7 @@ func (g *ConnectfourGame) Run(gameID string) error {
 
 		x := int(reply.Play.(float64))
 		placed := false
-		for y := Rows - 1; y >= 0; y-- {
+		for y := 0; y < Rows; y++ {
 			if g.board[y][x] == "" {
 				g.board[y][x] = piece
 				placed = true
