@@ -12,11 +12,14 @@ import (
 	"github.com/moul/bolosseum/bots"
 	"github.com/moul/bolosseum/bots/filebot"
 	"github.com/moul/bolosseum/bots/httpbot"
+	"github.com/moul/bolosseum/bots/stupidbot"
 	"github.com/moul/bolosseum/games"
 	"github.com/moul/bolosseum/games/coinflip"
 	"github.com/moul/bolosseum/games/connectfour"
 	"github.com/moul/bolosseum/games/russianbullet"
 	"github.com/moul/bolosseum/games/tictactoe"
+	"github.com/moul/bolosseum/stupid-ias"
+	"github.com/moul/bolosseum/stupid-ias/connectfour"
 	"github.com/urfave/cli"
 )
 
@@ -36,7 +39,17 @@ func getGame(gameName string) (games.Game, error) {
 	case "tictactoe":
 		return tictactoe.NewGame()
 	default:
-		return nil, fmt.Errorf("")
+		return nil, fmt.Errorf("unknown game %q", gameName)
+	}
+}
+
+func getStupidIA(iaPath string) (stupidias.StupidIA, error) {
+	logrus.Warnf("Getting stupid IA %q", iaPath)
+	switch iaPath {
+	case "connectfour":
+		return stupidconnectfour.NewIA()
+	default:
+		return nil, fmt.Errorf("unknown stupid IA %q", iaPath)
 	}
 }
 
@@ -61,6 +74,12 @@ func getBot(botPath string) (bots.Bot, error) {
 		return httpbot.NewBot(path, "GET", "https")
 	case "https+post", "https":
 		return httpbot.NewBot(path, "POST", "https")
+	case "stupid":
+		ia, err := getStupidIA(path)
+		if err != nil {
+			return nil, err
+		}
+		return stupidbot.NewStupidBot(path, ia)
 	default:
 		return nil, fmt.Errorf("invalid bot scheme: %q (%q)", scheme, path)
 	}
