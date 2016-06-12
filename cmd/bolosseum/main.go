@@ -19,6 +19,7 @@ import (
 	"github.com/moul/bolosseum/games/russianbullet"
 	"github.com/moul/bolosseum/games/tictactoe"
 	"github.com/moul/bolosseum/stupid-ias"
+	"github.com/moul/bolosseum/stupid-ias/coinflip"
 	"github.com/moul/bolosseum/stupid-ias/connectfour"
 	"github.com/moul/bolosseum/stupid-ias/tictactoe"
 	"github.com/urfave/cli"
@@ -49,6 +50,8 @@ func getStupidIA(iaPath string) (stupidias.StupidIA, error) {
 	switch iaPath {
 	case "connectfour":
 		return stupidconnectfour.NewIA()
+	case "coinflip":
+		return stupidcoinflip.NewIA()
 	case "tictactoe":
 		return stupidtictactoe.NewIA()
 	default:
