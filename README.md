@@ -62,6 +62,31 @@ $ bolosseum run tictactoe http://showcase.m.42.am/bolosseum-tictactoe http://sho
 [0002] Draw
 ```
 
+stupid bots
+
+```console
+$ olosseum run tictactoe stupid://tictactoe stupid://tictactoe
+WARN[0000] Initializing game "tictactoe"
+WARN[0000] Game: "tictactoe": &{{<nil> []} map["1-2":"" "2-1":"" "0-1":"" "1-0":"" "1-1":"" "2-2":"" "0-0":"" "0-2":"" "2-0":""]}
+WARN[0000] Getting bot "stupid://tictactoe"
+WARN[0000] Getting stupid IA "tictactoe"
+WARN[0000] Registering bot "tictactoe"
+WARN[0000] Getting bot "stupid://tictactoe"
+WARN[0000] Getting stupid IA "tictactoe"
+WARN[0000] Registering bot "tictactoe"
+WARN[0000] SendMessage: {gameid init tictactoe 2 <nil> <nil> 0}
+WARN[0000] SendMessage: {gameid init tictactoe 2 <nil> <nil> 1}
+WARN[0000] SendMessage: {gameid play-turn tictactoe 0 map[0-1: 1-0: 1-1: 1-2: 2-1: 0-0: 0-2: 2-0: 2-2:] X 0}
+WARN[0000] SendMessage: {gameid play-turn tictactoe 0 map[0-0: 0-2: 2-0: 2-2: 0-1: 1-0: 1-1: 1-2: 2-1:X] O 1}
+WARN[0000] SendMessage: {gameid play-turn tictactoe 0 map[0-1: 1-0: 1-1: 1-2: 2-1:X 0-0: 0-2:O 2-0: 2-2:] X 0}
+WARN[0000] SendMessage: {gameid play-turn tictactoe 0 map[0-2:O 2-0: 2-2: 0-0: 1-0: 1-1: 1-2:X 2-1:X 0-1:] O 1}
+WARN[0000] SendMessage: {gameid play-turn tictactoe 0 map[2-1:X 0-1: 1-0: 1-1:O 1-2:X 0-0: 0-2:O 2-0: 2-2:] X 0}
+WARN[0000] SendMessage: {gameid play-turn tictactoe 0 map[1-1:O 1-2:X 2-1:X 0-1:X 1-0: 2-0: 2-2: 0-0: 0-2:O] O 1}
+WARN[0000] SendMessage: {gameid play-turn tictactoe 0 map[1-1:O 1-2:X 2-1:X 0-1:X 1-0:O 2-0: 2-2: 0-0: 0-2:O] X 0}
+WARN[0000] SendMessage: {gameid play-turn tictactoe 0 map[1-1:O 1-2:X 2-1:X 0-1:X 1-0:O 2-0: 2-2: 0-0:X 0-2:O] O 1}
+WARN[0000] Player 1 (Tictactoe StupidIA) won
+```
+
 ### Supported schemes:
 
 * `file://`: execute local script by passing the json as `argv[1]`
