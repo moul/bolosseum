@@ -65,7 +65,7 @@ $ bolosseum run tictactoe https://showcase.m.42.am/bolosseum-tictactoe https://s
 stupid bots
 
 ```console
-$ olosseum run tictactoe stupid://tictactoe stupid://tictactoe
+$ bolosseum run tictactoe stupid://tictactoe stupid://tictactoe
 WARN[0000] Initializing game "tictactoe"
 WARN[0000] Game: "tictactoe": &{{<nil> []} map["1-2":"" "2-1":"" "0-1":"" "1-0":"" "1-1":"" "2-2":"" "0-0":"" "0-2":"" "2-0":""]}
 WARN[0000] Getting bot "stupid://tictactoe"
