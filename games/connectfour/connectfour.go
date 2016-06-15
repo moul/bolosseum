@@ -28,6 +28,24 @@ func NewGame() (*ConnectfourGame, error) {
 	return &game, nil
 }
 
+func (g *ConnectfourGame) GetAsciiOutput() []byte {
+	sep := ""
+	for x := 0; x < Cols; x++ {
+		sep += "+---"
+	}
+	sep += "+\n"
+
+	str := sep
+	for y := Rows - 1; y >= 0; y-- {
+		for x := 0; x < Cols; x++ {
+			str += fmt.Sprintf("+ %1s ", g.board[y][x])
+		}
+		str += "+\n"
+		str += sep
+	}
+	return []byte(str)
+}
+
 func (g *ConnectfourGame) CheckArgs(args []string) error {
 	if len(args) != 2 {
 		return fmt.Errorf("You need to specify 2 bots")
