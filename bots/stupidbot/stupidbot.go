@@ -27,15 +27,19 @@ func (b *StupidBot) Path() string {
 }
 
 func (b *StupidBot) SendMessage(msg bots.QuestionMessage) (*bots.ReplyMessage, error) {
-	logrus.Warnf("SendMessage: %v", msg)
+	logrus.Warnf("bot-%d >> %v", msg.PlayerIndex, msg)
+	var reply *bots.ReplyMessage
 	switch msg.Action {
 	case "init":
-		return b.ia.Init(msg), nil
+		reply = b.ia.Init(msg)
 	case "play-turn":
-		return b.ia.PlayTurn(msg), nil
+		reply = b.ia.PlayTurn(msg)
 	default:
 		return nil, fmt.Errorf("Unknown action %q", msg.Action)
 	}
+
+	logrus.Warnf("bot-%d << %v", msg.PlayerIndex, *reply)
+	return reply, nil
 }
 
 func (b *StupidBot) Start() error {
