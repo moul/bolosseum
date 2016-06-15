@@ -59,8 +59,13 @@ func getStupidIA(iaPath string) (stupidias.StupidIA, error) {
 	}
 }
 
-func getBot(botPath string) (bots.Bot, error) {
+func getBot(botPath string, game games.Game) (bots.Bot, error) {
 	logrus.Warnf("Getting bot %q", botPath)
+
+	if botPath == "stupid" {
+		botPath = fmt.Sprintf("stupid://%s", game.Name())
+	}
+
 	splt := strings.Split(botPath, "://")
 	if len(splt) != 2 {
 		return nil, fmt.Errorf("invalid bot path")
@@ -132,7 +137,7 @@ func run(c *cli.Context) error {
 	// initialize bots
 	hasError := false
 	for _, botPath := range args[1:] {
-		bot, err := getBot(botPath)
+		bot, err := getBot(botPath, game)
 		if err != nil {
 			hasError = true
 			logrus.Errorf("Failed to initialize bot %q", bot)
