@@ -170,5 +170,10 @@ func run(c *cli.Context) error {
 		logrus.Errorf("Run error: %v", err)
 	}
 
+	// print ascii output
+	if output := game.GetAsciiOutput(); len(output) > 0 {
+		fmt.Printf("%s", output)
+	}
+
 	return nil
 }

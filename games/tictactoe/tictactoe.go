@@ -30,6 +30,19 @@ func NewGame() (*TictactoeGame, error) {
 	return &game, nil
 }
 
+func (g *TictactoeGame) GetAsciiOutput() []byte {
+	str := ""
+	str += "+---+---+---+\n"
+	for y := 0; y < 3; y++ {
+		for x := 0; x < 3; x++ {
+			str += fmt.Sprintf("+ %1s ", g.board[fmt.Sprintf("%d-%d", y, x)])
+		}
+		str += "+\n"
+		str += "+---+---+---+\n"
+	}
+	return []byte(str)
+}
+
 func (g *TictactoeGame) CheckArgs(args []string) error {
 	if len(args) != 2 {
 		return fmt.Errorf("You need to specify 2 bots")

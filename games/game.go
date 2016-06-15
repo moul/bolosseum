@@ -7,6 +7,7 @@ type Game interface {
 	Name() string
 	CheckArgs([]string) error
 	RegisterBot(bots.Bot)
+	GetAsciiOutput() []byte
 }
 
 var RegisteredGames []Game
