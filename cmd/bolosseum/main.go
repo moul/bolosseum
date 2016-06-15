@@ -114,8 +114,21 @@ func main() {
 			Usage:  "Start a battle",
 			Action: run,
 		},
+		{
+			Name:   "list-games",
+			Usage:  "List games",
+			Action: listGames,
+		},
 	}
 	app.Run(os.Args)
+}
+
+func listGames(c *cli.Context) error {
+	fmt.Println("Games:")
+	for _, game := range availableGames {
+		fmt.Printf("- %s\n", game)
+	}
+	return nil
 }
 
 func run(c *cli.Context) error {
