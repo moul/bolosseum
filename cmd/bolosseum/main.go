@@ -28,6 +28,8 @@ import (
 var availableGames = []string{
 	"coinflip",
 	"connectfour",
+	"russianbullet",
+	"tictactoe",
 }
 
 func getGame(gameName string) (games.Game, error) {
