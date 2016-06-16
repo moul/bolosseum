@@ -120,7 +120,9 @@ func main() {
 			Action: listGames,
 		},
 	}
-	app.Run(os.Args)
+	if err := app.Run(os.Args); err != nil {
+		logrus.Fatalf("%v", err)
+	}
 }
 
 func listGames(c *cli.Context) error {
