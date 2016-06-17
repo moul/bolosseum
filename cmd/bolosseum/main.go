@@ -3,11 +3,13 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"net/http"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/gin-gonic/gin"
 	"github.com/moul/bolosseum"
 	"github.com/moul/bolosseum/bots"
 	"github.com/moul/bolosseum/bots/filebot"
@@ -119,10 +121,35 @@ func main() {
 			Usage:  "List games",
 			Action: listGames,
 		},
+		{
+			Name:   "server",
+			Usage:  "Start a bolosseum web server",
+			Action: server,
+		},
 	}
 	if err := app.Run(os.Args); err != nil {
 		logrus.Fatalf("%v", err)
 	}
+}
+
+var indexHTML = `<html>
+  <head>
+    <title>Bolosseum</title>
+  </head>
+  <body>
+    <h1>Bolosseum</h1>
+  </body>
+</html>`
+
+func server(c *cli.Context) error {
+	r := gin.Default()
+	r.LoadHTMLGlob("web/*")
+	r.GET("/", func(c *gin.Context) {
+		//c.Header("Content-Type", "text/html")
+		//c.String(http.StatusOK, indexHTML)
+		c.HTML(http.StatusOK, "index.tmpl", nil)
+	})
+	return r.Run(":9000")
 }
 
 func listGames(c *cli.Context) error {

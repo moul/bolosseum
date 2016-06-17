@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bolosseum</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+    <style>
+     body {
+       padding-top: 60px;
+       padding-bottom: 20px;
+     }
+    </style>
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="/">Bolosseum</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <form class="form-horizontal">
+            <div class="form-group">
+              <label for="game" class="col-sm-2 control-label">Game</label>
+              <div class="col-sm-10">
+                <select name="game" class="form-control">
+                  <option value="tictactoe" selected>Tic Tac Toe</option>
+                  <option value="connectfour" >Connect Four</option>
+                  <option value="coinflip" >Coinflip</option>
+                  <!--<option>Russianbullet</option>-->
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="bot1" class="col-sm-2 control-label">Bot 1 url</label>
+              <div class="col-sm-10">
+                <input id="bot1" class="form-control" type="text" name="bot1" placeholder="'stupid' or 'http://...'" value="stupid" required autofocus />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="bot2" class="col-sm-2 control-label">Bot 2 url</label>
+              <div class="col-sm-10">
+                <input id="bot2" class="form-control" type="text" name="bot2" placeholder="'stupid' or 'http://...'" value="stupid" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-sm-offset-2 col-sm-10">
+                <input id="submit-run" class="btn btn-lg btn-primary btn-block" type="submit" value="Run" />
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <hr>
+
+      <footer>
+        <p>&copy; 2016 Manfred Touron + Contributors</p>
+      </footer>
+    </div>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+     $(document).ready(function() {
+
+     });
+    </script>
+  </body>
+</html>
