@@ -66,6 +66,14 @@
 
       <hr>
 
+      <div class="row" id="result" class="hide">
+        <div class="col-md-12">
+          <pre id="ascii-output"></pre>
+        </div>
+        <hr>
+      </div>
+
+
       <footer>
         <p>&copy; 2016 Manfred Touron + Contributors</p>
       </footer>
@@ -87,6 +95,7 @@
      }
 
      $(document).ready(function() {
+       $('#result').addClass("hide");
        var game = GetQueryStringParams("game"),
        bot1 = GetQueryStringParams("bot1"),
        bot2 = GetQueryStringParams("bot2");
@@ -96,6 +105,8 @@
            { game: game, bot1: bot1, bot2: bot2 },
            function(data, status, xhr) {
              console.log(data, status, xhr);
+             $('#result').removeClass("hide");
+             $('#ascii-output').html(data.output);
            },
            "json" // jsonp
          );
