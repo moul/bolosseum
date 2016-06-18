@@ -73,6 +73,12 @@
         <hr>
       </div>
 
+      <div class="row" id="error">
+        <div class="col-md-12">
+          <pre id="error-msg" class="bg-danger"></pre>
+        </div>
+      </div>
+
 
       <footer>
         <p>&copy; 2016 Manfred Touron + Contributors</p>
@@ -95,21 +101,28 @@
      }
 
      $(document).ready(function() {
-       $('#result').addClass("hide");
+       $('#result, #error').addClass("hide");
        var game = GetQueryStringParams("game"),
        bot1 = GetQueryStringParams("bot1"),
        bot2 = GetQueryStringParams("bot2");
+
        if (game !== undefined && bot1 != undefined && bot2 != undefined) {
-         $.post(
-           "/run",
-           { game: game, bot1: bot1, bot2: bot2 },
-           function(data, status, xhr) {
-             console.log(data, status, xhr);
+         $.ajax({
+           type: "POST",
+           url: "/run",
+           data: { game: game, bot1: bot1, bot2: bot2 },
+           dataType: "json",
+           success: function(data) {
              $('#result').removeClass("hide");
              $('#ascii-output').html(data.output);
            },
-           "json" // jsonp
-         );
+           error: function(xhr) {
+             var data = $.parseJSON(xhr.responseText);
+             console.log(data);
+             $('#error-msg').html(data.error);
+             $('#error').removeClass('hide');
+           },
+         });
        }
      });
     </script>
