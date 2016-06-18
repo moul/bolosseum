@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -151,8 +152,22 @@ func server(c *cli.Context) error {
 	})
 	r.POST("/run", func(c *gin.Context) {
 		gameName := c.PostForm("game")
-		bot1URL := c.PostForm("bot1")
-		bot2URL := c.PostForm("bot2")
+		bot1URL, err := url.QueryUnescape(c.PostForm("bot1"))
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error":  "Invalid bot1 parameter",
+				"detail": err,
+			})
+			return
+		}
+		bot2URL, err := url.QueryUnescape(c.PostForm("bot2"))
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error":  "Invalid bot2 parameter",
+				"detail": err,
+			})
+			return
+		}
 
 		if gameName == "" || bot1URL == "" || bot2URL == "" {
 			c.JSON(http.StatusNotFound, gin.H{
