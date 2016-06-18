@@ -75,8 +75,31 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
     <script type="text/javascript">
-     $(document).ready(function() {
+     function GetQueryStringParams(sParam) {
+       var sPageURL = window.location.search.substring(1);
+       var sURLVariables = sPageURL.split('&');
+       for (var i = 0; i < sURLVariables.length; i++) {
+         var sParameterName = sURLVariables[i].split('=');
+         if (sParameterName[0] == sParam) {
+           return sParameterName[1];
+         }
+       }
+     }
 
+     $(document).ready(function() {
+       var game = GetQueryStringParams("game"),
+       bot1 = GetQueryStringParams("bot1"),
+       bot2 = GetQueryStringParams("bot2");
+       if (game !== undefined && bot1 != undefined && bot2 != undefined) {
+         $.post(
+           "/run",
+           { game: game, bot1: bot1, bot2: bot2 },
+           function(data, status, xhr) {
+             console.log(data, status, xhr);
+           },
+           "json" // jsonp
+         );
+       }
      });
     </script>
   </body>

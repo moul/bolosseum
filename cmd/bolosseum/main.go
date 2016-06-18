@@ -149,6 +149,73 @@ func server(c *cli.Context) error {
 		//c.String(http.StatusOK, indexHTML)
 		c.HTML(http.StatusOK, "index.tmpl", nil)
 	})
+	r.POST("/run", func(c *gin.Context) {
+		gameName := c.PostForm("game")
+		bot1URL := c.PostForm("bot1")
+		bot2URL := c.PostForm("bot2")
+
+		if gameName == "" || bot1URL == "" || bot2URL == "" {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "Missing parameters",
+			})
+			return
+		}
+
+		// initialize game
+		logrus.Warnf("Initializing game %q", gameName)
+		game, err := getGame(gameName)
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "No such game",
+			})
+			return
+		}
+		logrus.Warnf("Game: %q: %q", game.Name(), game)
+
+		args := []string{bot1URL, bot2URL}
+
+		if err = game.CheckArgs(args); err != nil {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error":  "Invalid parameters",
+				"detail": err,
+			})
+		}
+
+		// initialize bots
+		hasError := false
+		for _, botPath := range args {
+			bot, err := getBot(botPath, game)
+			if err != nil {
+				hasError = true
+				logrus.Errorf("Failed to initialize bot %q", bot)
+			} else {
+				logrus.Warnf("Registering bot %q", bot.Path())
+				game.RegisterBot(bot)
+			}
+		}
+		if hasError {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error":  "bot registering error",
+				"detail": err,
+			})
+			return
+		}
+
+		// run
+		if err = game.Run("gameid"); err != nil {
+			logrus.Errorf("Run error: %v", err)
+		}
+
+		// print ascii output
+		output := game.GetAsciiOutput()
+		if len(output) > 0 {
+			fmt.Printf("%s", output)
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"output": string(output),
+		})
+	})
 	return r.Run(":9000")
 }
 
