@@ -100,8 +100,33 @@
        }
      }
 
-     $(document).ready(function() {
+     $('#result, #error').addClass("hide");
+
+     function run() {
        $('#result, #error').addClass("hide");
+       var game = $('#game').val(),
+       bot1 = $('#bot1').val(),
+       bot2 = $('#bot2').val();
+
+       $.ajax({
+         type: "POST",
+         url: "/run",
+         data: { game: game, bot1: bot1, bot2: bot2 },
+         dataType: "json",
+         success: function(data) {
+           $('#result').removeClass("hide");
+           $('#ascii-output').html(data.output);
+         },
+         error: function(xhr) {
+           var data = $.parseJSON(xhr.responseText);
+           console.log(data);
+           $('#error-msg').html(data.error);
+           $('#error').removeClass('hide');
+         }
+       });
+     }
+
+     $(document).ready(function() {
        var game = GetQueryStringParams("game"),
        bot1 = GetQueryStringParams("bot1"),
        bot2 = GetQueryStringParams("bot2");
@@ -111,23 +136,14 @@
        if (game !== undefined) { $('#game').val(game); }
 
        if (game !== undefined && bot1 != undefined && bot2 != undefined) {
-         $.ajax({
-           type: "POST",
-           url: "/run",
-           data: { game: game, bot1: bot1, bot2: bot2 },
-           dataType: "json",
-           success: function(data) {
-             $('#result').removeClass("hide");
-             $('#ascii-output').html(data.output);
-           },
-           error: function(xhr) {
-             var data = $.parseJSON(xhr.responseText);
-             console.log(data);
-             $('#error-msg').html(data.error);
-             $('#error').removeClass('hide');
-           },
-         });
+         run();
        }
+
+       $('#submit-run').click(function(event) {
+         run();
+         history.pushState({}, '', "/?game=" + $('#game').val() + "&bot1=" + $('#bot1').val() + "&bot2=" + $('#bot2').val());
+         event.preventDefault();
+       });
      });
     </script>
   </body>
