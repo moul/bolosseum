@@ -5,6 +5,11 @@ bolosseum: $(SOURCE)
 	go build -o ./bolosseum ./cmd/bolosseum/main.go
 
 
+.PHONY: docker
+docker:
+	docker build -t moul/bolosseum .
+
+
 .PHONY: test-coinflip
 test-coinflip: bolosseum
 	./bolosseum run coinflip file://./test/coinflip.sh file://./test/coinflip.sh
