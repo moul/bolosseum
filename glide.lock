@@ -1,0 +1,36 @@
+hash: 48443eef3deb4a059fece71fd7934d4057fb3babf2d2f5b327d12022299ad10b
+updated: 2016-06-19T23:31:58.155601109+02:00
+imports:
+- name: github.com/gin-gonic/gin
+  version: f931d1ea80ae95a6fc739213cdd9399bd2967fb6
+  subpackages:
+  - binding
+  - render
+- name: github.com/golang/protobuf
+  version: 2402d76f3d41f928c7902a765dfc872356dd3aad
+  subpackages:
+  - proto
+- name: github.com/manucorporat/sse
+  version: ee05b128a739a0fb76c7ebd3ae4810c1de808d6d
+- name: github.com/moul/http2curl
+  version: b1479103caacaa39319f75e7f57fc545287fca0d
+- name: github.com/parnurzeal/gorequest
+  version: f17fef20c518e688f4edb3eb2af148462ecab3ef
+- name: github.com/Sirupsen/logrus
+  version: f3cfb454f4c209e6668c95216c4744b8fddb2356
+- name: github.com/urfave/cli
+  version: b438abf775124d32be72016935a9553dbffe8473
+- name: golang.org/x/net
+  version: f315505cf3349909cdf013ea56690da34e96a451
+  subpackages:
+  - publicsuffix
+  - context
+- name: golang.org/x/sys
+  version: 62bee037599929a6e9146f29d10dd5208c43507d
+  subpackages:
+  - unix
+- name: gopkg.in/go-playground/validator.v8
+  version: c193cecd124b5cc722d7ee5538e945bdb3348435
+- name: gopkg.in/yaml.v2
+  version: a83829b6f1293c91addabc89d0571c246397bbf4
+devImports: []
