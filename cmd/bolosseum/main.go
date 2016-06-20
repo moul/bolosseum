@@ -11,6 +11,7 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
+	"github.com/googollee/go-socket.io"
 	"github.com/moul/bolosseum"
 	"github.com/moul/bolosseum/bots"
 	"github.com/moul/bolosseum/bots/filebot"
@@ -151,6 +152,31 @@ var indexHTML = `<html>
   </body>
 </html>`
 
+func translateSteps(inputSteps chan games.GameStep, outputSteps chan APIStep, finished chan bool) {
+	for step := range inputSteps {
+		if step.QuestionMessage != nil {
+			outputSteps <- APIStep{Type: "question", Data: *step.QuestionMessage}
+		} else if step.ReplyMessage != nil {
+			outputSteps <- APIStep{Type: "reply", Data: step.ReplyMessage}
+		} else if step.Error != nil {
+			outputSteps <- APIStep{Type: "error", Data: step.Error}
+			close(inputSteps)
+		} else if step.Message != "" {
+			outputSteps <- APIStep{Type: "message", Data: step.Message}
+		} else if step.Winner != nil {
+			outputSteps <- APIStep{Type: "winner", Data: step.Winner.Name()}
+			close(inputSteps)
+		} else if step.Draw {
+			outputSteps <- APIStep{Type: "draw"}
+			close(inputSteps)
+		} else {
+			outputSteps <- APIStep{Type: "error", Data: fmt.Errorf("Unknown message type: %v", step)}
+			close(inputSteps)
+		}
+	}
+	finished <- true
+}
+
 func server(c *cli.Context) error {
 	r := gin.Default()
 	r.LoadHTMLGlob("web/*")
@@ -226,35 +252,19 @@ func server(c *cli.Context) error {
 		}
 
 		// run
-		steps := make(chan games.GameStep)
-		var result APIResult
+		inputSteps := make(chan games.GameStep)
+		outputSteps := make(chan APIStep)
 		finished := make(chan bool)
+		go translateSteps(inputSteps, outputSteps, finished)
+
+		var result APIResult
 		go func() {
-			for step := range steps {
-				if step.QuestionMessage != nil {
-					result.Steps = append(result.Steps, APIStep{Type: "question", Data: *step.QuestionMessage})
-				} else if step.ReplyMessage != nil {
-					result.Steps = append(result.Steps, APIStep{Type: "reply", Data: step.ReplyMessage})
-				} else if step.Error != nil {
-					result.Steps = append(result.Steps, APIStep{Type: "error", Data: step.Error})
-					close(steps)
-				} else if step.Message != "" {
-					result.Steps = append(result.Steps, APIStep{Type: "message", Data: step.Message})
-				} else if step.Winner != nil {
-					result.Steps = append(result.Steps, APIStep{Type: "winner", Data: step.Winner.Name()})
-					close(steps)
-				} else if step.Draw {
-					result.Steps = append(result.Steps, APIStep{Type: "draw"})
-					close(steps)
-				} else {
-					result.Steps = append(result.Steps, APIStep{Type: "error", Data: fmt.Errorf("Unknown message type: %v", step)})
-					close(steps)
-				}
+			for step := range outputSteps {
+				result.Steps = append(result.Steps, step)
 			}
-			finished <- true
 		}()
 
-		if err = game.Run("gameid", steps); err != nil {
+		if err = game.Run("gameid", inputSteps); err != nil {
 			logrus.Errorf("Run error: %v", err)
 		}
 
@@ -267,7 +277,98 @@ func server(c *cli.Context) error {
 
 		c.JSON(http.StatusOK, result)
 	})
-	return r.Run(":9000")
+
+	sioServer, err := socketio.NewServer(nil)
+	if err != nil {
+		return err
+	}
+
+	sioServer.On("connection", func(so socketio.Socket) {
+		logrus.Warnf("sio connection: %v", so)
+		so.On("run", func(data struct {
+			Game string `json:"game"`
+			Bot1 string `json:"bot1"`
+			Bot2 string `json:"bot2"`
+		}) error {
+			logrus.Warnf("sio run: %v", data)
+
+			gameName := data.Game
+			bot1URL := data.Bot1
+			bot2URL := data.Bot2
+
+			if gameName == "" || bot1URL == "" || bot2URL == "" {
+				return fmt.Errorf("Missing parameters")
+			}
+
+			// initialize game
+			logrus.Warnf("Initializing game %q", gameName)
+			game, err := getGame(gameName)
+			if err != nil {
+				return fmt.Errorf("No such game")
+			}
+
+			logrus.Warnf("Game: %q: %q", game.Name(), game)
+
+			args := []string{bot1URL, bot2URL}
+
+			if err = game.CheckArgs(args); err != nil {
+				return fmt.Errorf("Invalid parameters: %v", err)
+			}
+
+			// initialize bots
+			for _, botPath := range args {
+				bot, err := getBot(botPath, game)
+				if err != nil {
+					return fmt.Errorf("Failed to initialize bot %q", bot)
+				}
+				logrus.Warnf("Registering bot %q", bot.Path())
+				game.RegisterBot(bot)
+			}
+
+			// run
+			inputSteps := make(chan games.GameStep)
+			outputSteps := make(chan APIStep)
+			finished := make(chan bool)
+			go translateSteps(inputSteps, outputSteps, finished)
+
+			go func() {
+				for step := range outputSteps {
+					so.Emit("step", step)
+				}
+			}()
+
+			if err = game.Run("gameid", inputSteps); err != nil {
+				logrus.Errorf("Run error: %v", err)
+			}
+
+			select {
+			case <-finished:
+			}
+
+			// print ascii output
+			if output := game.GetAsciiOutput(); len(output) > 0 {
+				so.Emit("step", APIStep{Type: "ascii-output", Data: string(output)})
+			}
+
+			so.Emit("disconnect")
+			return nil
+		})
+
+		so.On("disconnection", func() {
+			logrus.Warnf("on disconnect")
+		})
+	})
+
+	sioServer.On("error", func(so socketio.Socket, err error) {
+		logrus.Errorf("sio error: %v -> %v", so, err)
+	})
+
+	http.Handle("/socket.io/", sioServer)
+	http.Handle("/", r)
+	//return r.Run(":9000")
+	addr := ":9000"
+	logrus.Warnf("Listening and serving HTTP on %s", addr)
+	return http.ListenAndServe(addr, nil)
 }
 
 func listGames(c *cli.Context) error {
