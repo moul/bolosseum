@@ -280,29 +280,38 @@ func run(c *cli.Context) error {
 
 	// run
 	steps := make(chan games.GameStep)
+	finished := make(chan bool)
 	go func() {
-		for {
-			select {
-			case step := <-steps:
-				if step.QuestionMessage != nil {
-					logrus.Warnf("bot-%d << %v", step.QuestionMessage.PlayerIndex, *step.QuestionMessage)
-				} else if step.ReplyMessage != nil {
-					logrus.Warnf("bot-%d >> %v", step.ReplyMessage.PlayerIndex, *step.ReplyMessage)
-				} else if step.Error != nil {
-					logrus.Errorf("%v", step.Error)
-				} else if step.Message != "" {
-					logrus.Warnf("message: %s", step.Message)
-				} else if step.Winner != nil {
-					logrus.Warnf("winner: %s", step.Winner.Name())
-				} else {
-					logrus.Errorf("Unknown message type: %v", step)
-				}
+		for step := range steps {
+			if step.QuestionMessage != nil {
+				logrus.Warnf("bot-%d << %v", step.QuestionMessage.PlayerIndex, *step.QuestionMessage)
+			} else if step.ReplyMessage != nil {
+				logrus.Warnf("bot-%d >> %v", step.ReplyMessage.PlayerIndex, *step.ReplyMessage)
+			} else if step.Error != nil {
+				logrus.Errorf("%v", step.Error)
+				close(steps)
+			} else if step.Message != "" {
+				logrus.Warnf("message: %s", step.Message)
+			} else if step.Winner != nil {
+				logrus.Warnf("winner: %s", step.Winner.Name())
+				close(steps)
+			} else if step.Draw {
+				logrus.Warnf("Draw")
+				close(steps)
+			} else {
+				logrus.Errorf("Unknown message type: %v", step)
+				close(steps)
 			}
 		}
+		finished <- true
 	}()
 
 	if err = game.Run("gameid", steps); err != nil {
 		logrus.Errorf("Run error: %v", err)
+	}
+
+	select {
+	case <-finished:
 	}
 
 	// print ascii output

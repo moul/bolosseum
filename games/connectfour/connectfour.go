@@ -111,6 +111,10 @@ func (g *ConnectfourGame) Run(gameID string, steps chan games.GameStep) error {
 
 	// play
 	for turn := 0; ; turn++ {
+		if turn == Cols*Rows {
+			steps <- games.GameStep{Draw: true}
+			return nil
+		}
 		idx := turn % 2
 		bot := g.Bots[idx]
 		piece := pieces[idx]
