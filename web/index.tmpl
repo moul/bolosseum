@@ -138,7 +138,7 @@
 
      $('#result, #error').addClass("hide");
 
-     function sioRun(socket) {
+     function sioRun(socket, game, bot1, bot2) {
        if (!socket.connected) {
          socket.connect();
        }
@@ -147,10 +147,6 @@
        $('#result').removeClass("hide");
        $('#ascii-output').addClass("hide");
        $('#steps tr').remove();
-
-       var game = $('#game').val(),
-       bot1 = $('#bot1').val(),
-       bot2 = $('#bot2').val();
 
        socket.emit(
          "run",
@@ -203,11 +199,8 @@
        }
      }
 
-     function ajaxRun() {
+     function ajaxRun(game, bot1, bot2) {
        $('#result, #error').addClass("hide");
-       var game = $('#game').val(),
-       bot1 = $('#bot1').val(),
-       bot2 = $('#bot2').val();
 
        $.ajax({
          type: "POST",
@@ -234,6 +227,11 @@
      var socket = undefined;
 
      function run() {
+       var game = $('#game').val(),
+       bot1 = $('#bot1').val(),
+       bot2 = $('#bot2').val();
+
+
        if (socket === undefined) {
          socket = io();
          socket.on('step', onStep);
@@ -245,12 +243,12 @@
          });
        }
 
-       if (socket) {
-         console.log("Running socket.io client");
-         sioRun(socket);
-       } else {
+       if (!socket || (bot1 == "stupid" && bot2 == "stupid")) {
          console.log("Running ajax client");
-         ajaxRun();
+         ajaxRun(game, bot1, bot2);
+       } else {
+         console.log("Running socket.io client");
+         sioRun(socket, game, bot1, bot2);
        }
      }
 
