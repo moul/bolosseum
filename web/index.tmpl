@@ -89,11 +89,17 @@
           Winner: <pre id="winner"></pre>
         </div>
         <div class="col-md-12">
-          Draw: <pre id="draw"></pre>
-        </div>
-        <div class="col-md-12">
-          <ul id="steps">
-          </ul>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Bot</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="steps">
+            </tbody>
+          </table>
         </div>
         <hr>
       </div>
@@ -144,12 +150,52 @@
          dataType: "json",
          success: function(data) {
            $('#result').removeClass("hide");
-           $('#ascii-output').html(data["ascii-output"]);
-           $('#winner').html(data.winner)
-           $('#draw').html(data.draw)
+           $('#ascii-output').addClass("hide");
+           $('#steps tr').remove();
+
+           if (data.draw) {
+             $('#winner').html('Draw')
+           } else {
+             $('#winner').html(data.winner)
+           }
+
            for (var i = 0; i < data.steps.length; i++) {
              var step = data.steps[i];
-             $('#steps').append($('<li></li>').html(JSON.stringify(step)));
+             var botID = '';
+             var detail = '';
+             var action = JSON.stringify(step.data);
+             var skipLog = false;
+
+             switch (step.type) {
+               case "question":
+                 botID = "Bot " + (step.data["player-index"] + 1);
+                 action = step.data.action;
+                 detail = "<pre>" + JSON.stringify(step.data.board) + "</pre>";
+                 break;
+               case "reply":
+                 botID = "Bot " + (step.data["player-index"] + 1);
+                 action = "play: <pre>" + step.data.play + "</pre>";
+                 break;
+               case "winner":
+                 $('#winner').html(step.data);
+                 action = "winner is: " + step.data;
+                 break;
+               case "draw":
+                 $('#winner').html("Draw");
+                 break;
+               case "ascii-output":
+                 $('#ascii-output').html(step.data).removeClass("hide");
+                 skipLog = true;
+                 break;
+             }
+
+             if (!skipLog) {
+               var row = $('<tr></tr>');
+               row.append($('<td></td>').html(step.type));
+               row.append($('<td></td>').html(botID));
+               row.append($('<td></td>').html(action + detail));
+               $('#steps').append(row);
+             }
            }
          },
          error: function(xhr) {

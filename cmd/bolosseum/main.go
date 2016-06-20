@@ -28,6 +28,15 @@ import (
 	"github.com/urfave/cli"
 )
 
+type APIStep struct {
+	Type string      `json:"type",omitempty`
+	Data interface{} `json:"data",omitempty`
+}
+
+type APIResult struct {
+	Steps []APIStep `json:"steps",omitempty`
+}
+
 var availableGames = []string{
 	"coinflip",
 	"connectfour",
@@ -218,34 +227,27 @@ func server(c *cli.Context) error {
 
 		// run
 		steps := make(chan games.GameStep)
-		var result struct {
-			Output      string        `json:"output",omitempty`
-			Steps       []interface{} `json:"steps",omitempty`
-			Winner      string        `json:"winner",omitempty`
-			Draw        bool          `json:"draw",omitempty`
-			Error       error         `json:"error",omitempty`
-			AsciiOutput string        `json:"ascii-output",omitempty`
-		}
+		var result APIResult
 		finished := make(chan bool)
 		go func() {
 			for step := range steps {
 				if step.QuestionMessage != nil {
-					result.Steps = append(result.Steps, *step.QuestionMessage)
+					result.Steps = append(result.Steps, APIStep{Type: "question", Data: *step.QuestionMessage})
 				} else if step.ReplyMessage != nil {
-					result.Steps = append(result.Steps, step.ReplyMessage)
+					result.Steps = append(result.Steps, APIStep{Type: "reply", Data: step.ReplyMessage})
 				} else if step.Error != nil {
-					result.Error = step.Error
+					result.Steps = append(result.Steps, APIStep{Type: "error", Data: step.Error})
 					close(steps)
 				} else if step.Message != "" {
-					result.Steps = append(result.Steps, struct{ Message string }{Message: step.Message})
+					result.Steps = append(result.Steps, APIStep{Type: "message", Data: step.Message})
 				} else if step.Winner != nil {
-					result.Winner = step.Winner.Name()
+					result.Steps = append(result.Steps, APIStep{Type: "winner", Data: step.Winner.Name()})
 					close(steps)
 				} else if step.Draw {
-					result.Draw = true
+					result.Steps = append(result.Steps, APIStep{Type: "draw"})
 					close(steps)
 				} else {
-					result.Error = fmt.Errorf("Unknown message type: %v", step)
+					result.Steps = append(result.Steps, APIStep{Type: "error", Data: fmt.Errorf("Unknown message type: %v", step)})
 					close(steps)
 				}
 			}
@@ -261,7 +263,7 @@ func server(c *cli.Context) error {
 		}
 
 		// print ascii output
-		result.AsciiOutput = string(game.GetAsciiOutput())
+		result.Steps = append(result.Steps, APIStep{Type: "ascii-output", Data: string(game.GetAsciiOutput())})
 
 		c.JSON(http.StatusOK, result)
 	})
