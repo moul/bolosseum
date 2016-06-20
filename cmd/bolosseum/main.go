@@ -230,7 +230,7 @@ func server(c *cli.Context) error {
 		go func() {
 			for step := range steps {
 				if step.QuestionMessage != nil {
-					result.Steps = append(result.Steps, step.QuestionMessage.PlayerIndex, *step.QuestionMessage)
+					result.Steps = append(result.Steps, *step.QuestionMessage)
 				} else if step.ReplyMessage != nil {
 					result.Steps = append(result.Steps, step.ReplyMessage)
 				} else if step.Error != nil {
