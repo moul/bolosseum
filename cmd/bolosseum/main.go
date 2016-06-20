@@ -216,22 +216,54 @@ func server(c *cli.Context) error {
 			return
 		}
 
-		steps := make(chan games.GameStep)
-
 		// run
+		steps := make(chan games.GameStep)
+		var result struct {
+			Output      string        `json:"output",omitempty`
+			Steps       []interface{} `json:"steps",omitempty`
+			Winner      string        `json:"winner",omitempty`
+			Draw        bool          `json:"draw",omitempty`
+			Error       error         `json:"error",omitempty`
+			AsciiOutput string        `json:"ascii-output",omitempty`
+		}
+		finished := make(chan bool)
+		go func() {
+			for step := range steps {
+				if step.QuestionMessage != nil {
+					result.Steps = append(result.Steps, step.QuestionMessage.PlayerIndex, *step.QuestionMessage)
+				} else if step.ReplyMessage != nil {
+					result.Steps = append(result.Steps, step.ReplyMessage)
+				} else if step.Error != nil {
+					result.Error = step.Error
+					close(steps)
+				} else if step.Message != "" {
+					result.Steps = append(result.Steps, struct{ Message string }{Message: step.Message})
+				} else if step.Winner != nil {
+					result.Winner = step.Winner.Name()
+					close(steps)
+				} else if step.Draw {
+					result.Draw = true
+					close(steps)
+				} else {
+					result.Error = fmt.Errorf("Unknown message type: %v", step)
+					close(steps)
+				}
+			}
+			finished <- true
+		}()
+
 		if err = game.Run("gameid", steps); err != nil {
 			logrus.Errorf("Run error: %v", err)
 		}
 
-		// print ascii output
-		output := game.GetAsciiOutput()
-		if len(output) > 0 {
-			fmt.Printf("%s", output)
+		select {
+		case <-finished:
 		}
 
-		c.JSON(http.StatusOK, gin.H{
-			"output": string(output),
-		})
+		// print ascii output
+		result.AsciiOutput = string(game.GetAsciiOutput())
+
+		c.JSON(http.StatusOK, result)
 	})
 	return r.Run(":9000")
 }

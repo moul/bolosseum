@@ -85,6 +85,16 @@
         <div class="col-md-12">
           <pre id="ascii-output"></pre>
         </div>
+        <div class="col-md-12">
+          Winner: <pre id="winner"></pre>
+        </div>
+        <div class="col-md-12">
+          Draw: <pre id="draw"></pre>
+        </div>
+        <div class="col-md-12">
+          <ul id="steps">
+          </ul>
+        </div>
         <hr>
       </div>
 
@@ -134,7 +144,13 @@
          dataType: "json",
          success: function(data) {
            $('#result').removeClass("hide");
-           $('#ascii-output').html(data.output);
+           $('#ascii-output').html(data["ascii-output"]);
+           $('#winner').html(data.winner)
+           $('#draw').html(data.draw)
+           for (var i = 0; i < data.steps.length; i++) {
+             var step = data.steps[i];
+             $('#steps').append($('<li></li>').html(JSON.stringify(step)));
+           }
          },
          error: function(xhr) {
            var data = $.parseJSON(xhr.responseText);
