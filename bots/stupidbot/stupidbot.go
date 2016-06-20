@@ -3,7 +3,6 @@ package stupidbot
 import (
 	"fmt"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/moul/bolosseum/bots"
 	"github.com/moul/bolosseum/stupid-ias"
 )
@@ -27,7 +26,7 @@ func (b *StupidBot) Path() string {
 }
 
 func (b *StupidBot) SendMessage(msg bots.QuestionMessage) (*bots.ReplyMessage, error) {
-	logrus.Warnf("bot-%d >> %v", msg.PlayerIndex, msg)
+	//logrus.Warnf("bot-%d >> %v", msg.PlayerIndex, msg)
 	var reply *bots.ReplyMessage
 	switch msg.Action {
 	case "init":
@@ -38,7 +37,7 @@ func (b *StupidBot) SendMessage(msg bots.QuestionMessage) (*bots.ReplyMessage, e
 		return nil, fmt.Errorf("Unknown action %q", msg.Action)
 	}
 
-	logrus.Warnf("bot-%d << %v", msg.PlayerIndex, *reply)
+	//logrus.Warnf("bot-%d << %v", msg.PlayerIndex, *reply)
 	return reply, nil
 }
 

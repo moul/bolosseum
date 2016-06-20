@@ -45,7 +45,6 @@ func (g *ConnectfourGame) GetAsciiOutput() []byte {
 	}
 	return []byte(str)
 }
-
 func (g *ConnectfourGame) CheckArgs(args []string) error {
 	if len(args) != 2 {
 		return fmt.Errorf("You need to specify 2 bots")
@@ -105,7 +104,7 @@ func (g *ConnectfourGame) checkBoard() (bots.Bot, error) {
 	return nil, nil
 }
 
-func (g *ConnectfourGame) Run(gameID string) error {
+func (g *ConnectfourGame) Run(gameID string, steps chan games.GameStep) error {
 	if err := bots.InitTurnBasedBots(g.Bots, g.Name(), gameID); err != nil {
 		return err
 	}
@@ -116,16 +115,25 @@ func (g *ConnectfourGame) Run(gameID string) error {
 		bot := g.Bots[idx]
 		piece := pieces[idx]
 
-		reply, err := bot.SendMessage(bots.QuestionMessage{
+		question := bots.QuestionMessage{
 			GameID:      gameID,
 			Game:        g.Name(),
 			Action:      "play-turn",
 			Board:       g.board,
 			You:         piece,
 			PlayerIndex: idx,
-		})
+		}
+		steps <- games.GameStep{QuestionMessage: &question}
+		reply, err := bot.SendMessage(question)
 		if err != nil {
 			return err
+		}
+		reply.PlayerIndex = idx
+		steps <- games.GameStep{ReplyMessage: reply}
+
+		if reply.Error != nil {
+			steps <- games.GameStep{Error: fmt.Errorf("%v", reply.Error)}
+			return fmt.Errorf("%v", reply.Error)
 		}
 
 		x := int(reply.Play.(float64))
@@ -150,7 +158,9 @@ func (g *ConnectfourGame) Run(gameID string) error {
 			return err
 		}
 		if winner != nil {
-			logrus.Warnf("Player %d (%s) won", idx, winner.Name())
+			steps <- games.GameStep{Winner: winner}
+			//steps <- games.GameStep{Message: fmt.Sprintf("Player %d (%s) won", idx, winner.Name())}
+			//logrus.Warnf("Player %d (%s) won", idx, winner.Name())
 			return nil
 		}
 	}

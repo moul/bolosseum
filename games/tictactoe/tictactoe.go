@@ -99,7 +99,7 @@ func (g *TictactoeGame) checkBoard() (bots.Bot, error) {
 	return nil, nil
 }
 
-func (g *TictactoeGame) Run(gameID string) error {
+func (g *TictactoeGame) Run(gameID string, steps chan games.GameStep) error {
 	if err := bots.InitTurnBasedBots(g.Bots, g.Name(), gameID); err != nil {
 		return err
 	}
@@ -110,18 +110,22 @@ func (g *TictactoeGame) Run(gameID string) error {
 		bot := g.Bots[idx]
 		piece := pieces[idx]
 
-		reply, err := bot.SendMessage(bots.QuestionMessage{
+		question := bots.QuestionMessage{
 			GameID:      gameID,
 			Game:        g.Name(),
 			Action:      "play-turn",
 			Board:       g.board,
 			You:         piece,
 			PlayerIndex: idx,
-		})
+		}
+		steps <- games.GameStep{QuestionMessage: &question}
+		reply, err := bot.SendMessage(question)
 		if err != nil {
 			return err
 		}
+		reply.PlayerIndex = idx
 
+		steps <- games.GameStep{ReplyMessage: reply}
 		g.board[reply.Play.(string)] = piece
 
 		// check board
@@ -130,7 +134,9 @@ func (g *TictactoeGame) Run(gameID string) error {
 			return err
 		}
 		if winner != nil {
-			logrus.Warnf("Player %d (%s) won", idx, winner.Name())
+			steps <- games.GameStep{Winner: winner}
+			//steps <- games.GameStep{Message: fmt.Sprintf("Player %d (%s) won", idx, winner.Name())}
+			//logrus.Warnf("Player %d (%s) won", idx, winner.Name())
 			return nil
 		}
 	}

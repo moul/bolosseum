@@ -26,7 +26,7 @@ func (g *RussianbulletGame) CheckArgs(args []string) error {
 	return nil
 }
 
-func (g *RussianbulletGame) Run(gameID string) error {
+func (g *RussianbulletGame) Run(gameID string, steps chan games.GameStep) error {
 	if err := bots.InitTurnBasedBots(g.Bots, g.Name(), gameID); err != nil {
 		return err
 	}
@@ -47,6 +47,7 @@ func (g *RussianbulletGame) Run(gameID string) error {
 		if err != nil {
 			return err
 		}
+		reply.PlayerIndex = idx
 
 		if reply.Play != "click !" {
 			return fmt.Errorf("Invalid bot input: %v", reply.Play)

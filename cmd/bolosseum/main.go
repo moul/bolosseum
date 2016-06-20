@@ -216,8 +216,10 @@ func server(c *cli.Context) error {
 			return
 		}
 
+		steps := make(chan games.GameStep)
+
 		// run
-		if err = game.Run("gameid"); err != nil {
+		if err = game.Run("gameid", steps); err != nil {
 			logrus.Errorf("Run error: %v", err)
 		}
 
@@ -277,7 +279,29 @@ func run(c *cli.Context) error {
 	}
 
 	// run
-	if err = game.Run("gameid"); err != nil {
+	steps := make(chan games.GameStep)
+	go func() {
+		for {
+			select {
+			case step := <-steps:
+				if step.QuestionMessage != nil {
+					logrus.Warnf("bot-%d << %v", step.QuestionMessage.PlayerIndex, *step.QuestionMessage)
+				} else if step.ReplyMessage != nil {
+					logrus.Warnf("bot-%d >> %v", step.ReplyMessage.PlayerIndex, *step.ReplyMessage)
+				} else if step.Error != nil {
+					logrus.Errorf("%v", step.Error)
+				} else if step.Message != "" {
+					logrus.Warnf("message: %s", step.Message)
+				} else if step.Winner != nil {
+					logrus.Warnf("winner: %s", step.Winner.Name())
+				} else {
+					logrus.Errorf("Unknown message type: %v", step)
+				}
+			}
+		}
+	}()
+
+	if err = game.Run("gameid", steps); err != nil {
 		logrus.Errorf("Run error: %v", err)
 	}
 

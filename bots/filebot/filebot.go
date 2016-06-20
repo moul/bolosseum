@@ -4,9 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"os/exec"
-	"strings"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/moul/bolosseum/bots"
 )
 
@@ -41,7 +39,7 @@ func (b *FileBot) SendMessage(msg bots.QuestionMessage) (*bots.ReplyMessage, err
 	if err != nil {
 		return nil, err
 	}
-	logrus.Warnf("body> %s", strings.TrimSpace(string(body)))
+	//logrus.Warnf("body> %s", strings.TrimSpace(string(body)))
 
 	// parse json
 	var response bots.ReplyMessage
