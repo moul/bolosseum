@@ -99,6 +99,9 @@ WARN[0000] Player 1 (Tictactoe StupidIA) won
 
 * [moul/tictactoe](https://github.com/moul/tictactoe/blob/master/cmd/tictactoe-bolosseum/main.go) (Golang)
 * [moul/showcase](https://github.com/moul/showcase/blob/master/bolosseum.go) (Golang)
+* [gnieark/tictactoe](https://github.com/gnieark/tictactoeChallenge/blob/master/tictactoeJSON.php) (PHP)
+* [gnieark/ias](https://github.com/gnieark/IAS) (PHP)
+* [gnieark/botsarena](https://github.com/gnieark/botsArena) (PHP)
 
 ## Install
 
