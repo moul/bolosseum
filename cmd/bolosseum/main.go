@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/Sirupsen/logrus"
@@ -178,6 +179,8 @@ func translateSteps(inputSteps chan games.GameStep, outputSteps chan APIStep, fi
 }
 
 func server(c *cli.Context) error {
+	writeMutex := &sync.Mutex{}
+
 	r := gin.Default()
 	r.LoadHTMLGlob("web/*")
 	r.GET("/", func(c *gin.Context) {
@@ -333,7 +336,9 @@ func server(c *cli.Context) error {
 
 			go func() {
 				for step := range outputSteps {
+					writeMutex.Lock()
 					so.Emit("step", step)
+					writeMutex.Unlock()
 				}
 			}()
 
@@ -350,8 +355,12 @@ func server(c *cli.Context) error {
 				so.Emit("step", APIStep{Type: "ascii-output", Data: string(output)})
 			}
 
-			so.Emit("disconnect")
+			// so.Emit("disconnect")
 			return nil
+		})
+
+		so.On("error", func() {
+			logrus.Warnf("on error")
 		})
 
 		so.On("disconnection", func() {
