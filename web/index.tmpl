@@ -136,14 +136,16 @@
        }
      }
 
-     $('#result, #error').addClass("hide");
+     hideError();
+     $('#result').addClass("hide");
 
      function sioRun(socket, game, bot1, bot2) {
        if (!socket.connected) {
          socket.connect();
        }
 
-       $('#result, #error').addClass("hide");
+       hideError();
+       $('#result').addClass("hide");
        $('#result').removeClass("hide");
        $('#ascii-output').addClass("hide");
        $('#steps tr').remove();
@@ -199,7 +201,17 @@
        }
      }
 
+     function showError(msg) {
+       $('#error-msg').html(data.error);
+       $('#error').removeClass('hide');
+     }
+
+     function hideError() {
+       $('#error').addClass("hide");
+     }
+
      function ajaxRun(game, bot1, bot2) {
+       hideError();
        $('#result, #error').addClass("hide");
 
        $.ajax({
@@ -218,8 +230,7 @@
          },
          error: function(xhr) {
            var data = $.parseJSON(xhr.responseText);
-           $('#error-msg').html(data.error);
-           $('#error').removeClass('hide');
+           showError(data.error);
          }
        });
      }
@@ -239,7 +250,7 @@
          socket.on('error', function() {
            // fixme; append in the table
            console.info('sio error', arguments);
-           alert('sio error');
+           showError("socket.io error");
          });
        }
 
