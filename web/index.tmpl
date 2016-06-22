@@ -85,7 +85,7 @@
         <div class="col-md-12">
           <pre id="ascii-output"></pre>
         </div>
-        <div class="col-md-12">
+        <div class="col-md-12" id="winner-container" class="hide">
           Winner: <pre id="winner"></pre>
         </div>
         <div class="col-md-12">
@@ -137,7 +137,7 @@
      }
 
      hideError();
-     $('#result').addClass("hide");
+     $('#result, #winner-container').addClass("hide");
 
      function sioRun(socket, game, bot1, bot2) {
        if (!socket.connected) {
@@ -145,7 +145,7 @@
        }
 
        hideError();
-       $('#result').addClass("hide");
+       $('#result, #winner-container').addClass("hide");
        $('#result').removeClass("hide");
        $('#ascii-output').addClass("hide");
        $('#steps tr').remove();
@@ -154,8 +154,9 @@
          "run",
          { game: game, bot1: bot1, bot2: bot2 },
          function(err) {
-           if (err !== undefined) {
+           if (err !== null) {
              console.error("run error", err);
+             showError("Run error");
            }
          }
        );
@@ -180,6 +181,7 @@
            action = "play: <pre>" + step.data.play + "</pre>";
            break;
          case "winner":
+           $('#winner-container').removeClass('hide');
            $('#winner').html(step.data);
            action = "winner is: " + step.data;
            break;
@@ -212,7 +214,7 @@
 
      function ajaxRun(game, bot1, bot2) {
        hideError();
-       $('#result, #error').addClass("hide");
+       $('#result, #winner-container').addClass("hide");
 
        $.ajax({
          type: "POST",
