@@ -352,7 +352,9 @@ func server(c *cli.Context) error {
 
 			// print ascii output
 			if output := game.GetAsciiOutput(); len(output) > 0 {
+				writeMutex.Lock()
 				so.Emit("step", APIStep{Type: "ascii-output", Data: string(output)})
+				writeMutex.Unlock()
 			}
 
 			// so.Emit("disconnect")
