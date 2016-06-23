@@ -22,11 +22,13 @@ import (
 	"github.com/moul/bolosseum/games"
 	"github.com/moul/bolosseum/games/coinflip"
 	"github.com/moul/bolosseum/games/connectfour"
+	"github.com/moul/bolosseum/games/guessnumber"
 	"github.com/moul/bolosseum/games/russianbullet"
 	"github.com/moul/bolosseum/games/tictactoe"
 	"github.com/moul/bolosseum/stupid-ias"
 	"github.com/moul/bolosseum/stupid-ias/coinflip"
 	"github.com/moul/bolosseum/stupid-ias/connectfour"
+	"github.com/moul/bolosseum/stupid-ias/guessnumber"
 	"github.com/moul/bolosseum/stupid-ias/russianbullet"
 	"github.com/moul/bolosseum/stupid-ias/tictactoe"
 	"github.com/urfave/cli"
@@ -45,6 +47,7 @@ var availableGames = []string{
 	"coinflip",
 	"connectfour",
 	"russianbullet",
+	"guessnumber",
 	"tictactoe",
 }
 
@@ -56,6 +59,8 @@ func getGame(gameName string) (games.Game, error) {
 		return connectfour.NewGame()
 	case "russianbullet":
 		return russianbullet.NewGame()
+	case "guessnumber":
+		return guessnumber.NewGame()
 	case "tictactoe":
 		return tictactoe.NewGame()
 	default:
@@ -74,6 +79,8 @@ func getStupidIA(iaPath string) (stupidias.StupidIA, error) {
 		return stupidtictactoe.NewIA()
 	case "russianbullet":
 		return stupidrussianbullet.NewIA()
+	case "guessnumber":
+		return stupidguessnumber.NewIA()
 	default:
 		return nil, fmt.Errorf("unknown stupid IA %q", iaPath)
 	}
