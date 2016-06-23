@@ -17,6 +17,7 @@ import (
 	"github.com/moul/bolosseum/bots"
 	"github.com/moul/bolosseum/bots/filebot"
 	"github.com/moul/bolosseum/bots/httpbot"
+	"github.com/moul/bolosseum/bots/stdinbot"
 	"github.com/moul/bolosseum/bots/stupidbot"
 	"github.com/moul/bolosseum/games"
 	"github.com/moul/bolosseum/games/coinflip"
@@ -81,8 +82,13 @@ func getStupidIA(iaPath string) (stupidias.StupidIA, error) {
 func getBot(botPath string, game games.Game) (bots.Bot, error) {
 	logrus.Warnf("Getting bot %q", botPath)
 
-	if botPath == "stupid" {
+	switch botPath {
+	case "stupid":
 		botPath = fmt.Sprintf("stupid://%s", game.Name())
+		break
+	case "stdin":
+		botPath = "stdin://"
+		break
 	}
 
 	splt := strings.Split(botPath, "://")
@@ -96,6 +102,8 @@ func getBot(botPath string, game games.Game) (bots.Bot, error) {
 	switch scheme {
 	case "file":
 		return filebot.NewBot(path)
+	case "stdin":
+		return stdinbot.NewBot()
 	case "http+get":
 		return httpbot.NewBot(path, "GET", "http")
 	case "http+post", "http":
