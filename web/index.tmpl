@@ -54,7 +54,7 @@
                   <option value="tictactoe" selected>Tic Tac Toe</option>
                   <option value="connectfour" >Connect Four</option>
                   <option value="coinflip" >Coinflip</option>
-                  <!--<option>Russianbullet</option>-->
+                  <option value="russianbullet">Russian Bullet</option>
                 </select>
               </div>
             </div>
@@ -87,6 +87,9 @@
         </div>
         <div class="col-md-12" id="winner-container" class="hide">
           Winner: <pre id="winner"></pre>
+        </div>
+        <div class="col-md-12" id="loser-container" class="hide">
+          Loser: <pre id="loser"></pre>
         </div>
         <div class="col-md-12">
           <table class="table">
@@ -137,7 +140,7 @@
      }
 
      hideError();
-     $('#result, #winner-container').addClass("hide");
+     $('#result, #winner-container, #loser-container').addClass("hide");
 
      function sioRun(socket, game, bot1, bot2) {
        if (!socket.connected) {
@@ -145,7 +148,7 @@
        }
 
        hideError();
-       $('#result, #winner-container').addClass("hide");
+       $('#result, #winner-container, #loser-container').addClass("hide");
        $('#result').removeClass("hide");
        $('#ascii-output').addClass("hide");
        $('#steps tr').remove();
@@ -185,7 +188,13 @@
            $('#winner').html(step.data);
            action = "winner is: " + step.data;
            break;
+         case "loser":
+           $('#loser-container').removeClass('hide');
+           $('#loser').html(step.data);
+           action = "loser is: " + step.data;
+           break;
          case "draw":
+           $('#winner-container').removeClass('hide');
            $('#winner').html("Draw");
            break;
          case "ascii-output":
@@ -214,7 +223,7 @@
 
      function ajaxRun(game, bot1, bot2) {
        hideError();
-       $('#result, #winner-container').addClass("hide");
+       $('#result, #winner-container, #loser-container').addClass("hide");
 
        $.ajax({
          type: "POST",

@@ -37,23 +37,30 @@ func (g *RussianbulletGame) Run(gameID string, steps chan games.GameStep) error 
 		idx := i % len(g.Bots)
 		bot := g.Bots[idx]
 
-		reply, err := bot.SendMessage(bots.QuestionMessage{
+		question := bots.QuestionMessage{
 			GameID:      gameID,
 			Players:     len(g.Bots),
 			Game:        g.Name(),
 			Action:      "play-turn",
 			PlayerIndex: idx,
-		})
+		}
+		steps <- games.GameStep{QuestionMessage: &question}
+		reply, err := bot.SendMessage(question)
 		if err != nil {
 			return err
 		}
 		reply.PlayerIndex = idx
+		steps <- games.GameStep{ReplyMessage: reply}
 
-		if reply.Play != "click !" {
-			return fmt.Errorf("Invalid bot input: %v", reply.Play)
+		if reply.Play != "click" {
+			err := fmt.Errorf("Invalid bot input: %v", reply.Play)
+			steps <- games.GameStep{Error: err}
+			return err
 		}
 		if i == bulletIndex {
-			logrus.Warnf("Player %d (%s) was killed", idx, bot.Name())
+			steps <- games.GameStep{Loser: g.Bots[idx]}
+			//logrus.Warnf("Player %d (%s) was killed", idx, bot.Name())
+			return nil
 		}
 	}
 
@@ -63,4 +70,8 @@ func (g *RussianbulletGame) Run(gameID string, steps chan games.GameStep) error 
 
 func (g *RussianbulletGame) Name() string {
 	return "russianbullet"
+}
+
+func (g *RussianbulletGame) GetAsciiOutput() []byte {
+	return nil
 }

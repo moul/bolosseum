@@ -8,6 +8,7 @@ type GameStep struct {
 	ReplyMessage    *bots.ReplyMessage
 	Message         string
 	Winner          bots.Bot
+	Loser           bots.Bot
 	Draw            bool
 }
 

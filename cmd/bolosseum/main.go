@@ -26,6 +26,7 @@ import (
 	"github.com/moul/bolosseum/stupid-ias"
 	"github.com/moul/bolosseum/stupid-ias/coinflip"
 	"github.com/moul/bolosseum/stupid-ias/connectfour"
+	"github.com/moul/bolosseum/stupid-ias/russianbullet"
 	"github.com/moul/bolosseum/stupid-ias/tictactoe"
 	"github.com/urfave/cli"
 )
@@ -70,6 +71,8 @@ func getStupidIA(iaPath string) (stupidias.StupidIA, error) {
 		return stupidcoinflip.NewIA()
 	case "tictactoe":
 		return stupidtictactoe.NewIA()
+	case "russianbullet":
+		return stupidrussianbullet.NewIA()
 	default:
 		return nil, fmt.Errorf("unknown stupid IA %q", iaPath)
 	}
@@ -166,6 +169,9 @@ func translateSteps(inputSteps chan games.GameStep, outputSteps chan APIStep, fi
 			outputSteps <- APIStep{Type: "message", Data: step.Message}
 		} else if step.Winner != nil {
 			outputSteps <- APIStep{Type: "winner", Data: step.Winner.Name()}
+			close(inputSteps)
+		} else if step.Loser != nil {
+			outputSteps <- APIStep{Type: "loser", Data: step.Loser.Name()}
 			close(inputSteps)
 		} else if step.Draw {
 			outputSteps <- APIStep{Type: "draw"}
@@ -438,6 +444,8 @@ func run(c *cli.Context) error {
 				close(steps)
 			} else if step.Message != "" {
 				logrus.Warnf("message: %s", step.Message)
+			} else if step.Loser != nil {
+				logrus.Warnf("loser: %s", step.Loser.Name())
 			} else if step.Winner != nil {
 				logrus.Warnf("winner: %s", step.Winner.Name())
 				close(steps)
