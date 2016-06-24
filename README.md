@@ -1,6 +1,8 @@
 # bolosseum
 :hocho: colosseum for bots
 
+[![Build Status](https://travis-ci.org/moul/bolosseum.svg?branch=master)](https://travis-ci.org/moul/bolosseum)
+
 ## Usage
 
 local battle
