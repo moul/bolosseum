@@ -284,7 +284,9 @@ func server(c *cli.Context) error {
 		var result APIResult
 		go func() {
 			for step := range outputSteps {
+				writeMutex.Lock()
 				result.Steps = append(result.Steps, step)
+				writeMutex.Unlock()
 			}
 		}()
 
@@ -297,8 +299,12 @@ func server(c *cli.Context) error {
 		}
 
 		// print ascii output
+		writeMutex.Lock()
 		result.Steps = append(result.Steps, APIStep{Type: "ascii-output", Data: string(game.GetAsciiOutput())})
+		writeMutex.Unlock()
 
+		writeMutex.Lock()
+		defer writeMutex.Unlock()
 		c.JSON(http.StatusOK, result)
 	})
 
@@ -358,7 +364,9 @@ func server(c *cli.Context) error {
 			go func() {
 				for step := range outputSteps {
 					writeMutex.Lock()
-					so.Emit("step", step)
+					if err := so.Emit("step", step); err != nil {
+						logrus.Errorf("socket.io emit step error: %v", err)
+					}
 					writeMutex.Unlock()
 				}
 			}()

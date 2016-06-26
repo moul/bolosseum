@@ -2,6 +2,7 @@ package tictactoe
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/moul/bolosseum/bots"
@@ -100,6 +101,8 @@ func (g *TictactoeGame) checkBoard() (bots.Bot, error) {
 }
 
 func (g *TictactoeGame) Run(gameID string, steps chan games.GameStep) error {
+	writeMutex := &sync.Mutex{}
+
 	if err := bots.InitTurnBasedBots(g.Bots, g.Name(), gameID); err != nil {
 		return err
 	}
@@ -126,7 +129,9 @@ func (g *TictactoeGame) Run(gameID string, steps chan games.GameStep) error {
 		reply.PlayerIndex = idx
 
 		steps <- games.GameStep{ReplyMessage: reply}
+		writeMutex.Lock()
 		g.board[reply.Play.(string)] = piece
+		writeMutex.Unlock()
 
 		// check board
 		winner, err := g.checkBoard()
