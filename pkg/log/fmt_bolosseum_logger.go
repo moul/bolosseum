@@ -44,6 +44,16 @@ func (bl *FmtBolosseumLogger) Errorf(fmtString string, args ...interface{}) {
 	fmt.Fprintf(bl.errWriter, fmtString+"\n", args...)
 }
 
+func (bl *FmtBolosseumLogger) Fatal(args ...interface{}) {
+	fmt.Fprintln(bl.errWriter, args...)
+	os.Exit(-1)
+}
+
+func (bl *FmtBolosseumLogger) Fatalf(fmtString string, args ...interface{}) {
+	fmt.Fprintf(bl.errWriter, fmtString+"\n", args...)
+	os.Exit(-1)
+}
+
 func (bl *FmtBolosseumLogger) Info(args ...interface{}) {
 	fmt.Fprintln(bl.outWriter, args...)
 }

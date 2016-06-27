@@ -14,6 +14,9 @@ type BolosseumLogger interface {
 	Error(args ...interface{})
 	Errorf(fmgString string, args ...interface{})
 
+	Fatal(args ...interface{})
+	Fatalf(fmgString string, args ...interface{})
+
 	Info(args ...interface{})
 	Infof(fmgString string, args ...interface{})
 
