@@ -22,6 +22,7 @@ type ReplyMessage struct {
 	Name        string      `json:"name",omitempty`
 	Play        interface{} `json:"play",omitempty`
 	Error       interface{} `json:"error",omitempty`
+	Comment     interface{} `json:"comment",omitempty`
 	PlayerIndex int         `json:"player-index",omitempty binding:"required"`
 }
 
