@@ -184,15 +184,6 @@ func main() {
 	}
 }
 
-var indexHTML = `<html>
-  <head>
-    <title>Bolosseum</title>
-  </head>
-  <body>
-    <h1>Bolosseum</h1>
-  </body>
-</html>`
-
 func translateSteps(inputSteps chan games.GameStep, outputSteps chan APIStep, finished chan bool) {
 	for step := range inputSteps {
 		if step.QuestionMessage != nil {

@@ -19,10 +19,3 @@ type Game interface {
 	RegisterBot(bots.Bot)
 	GetAsciiOutput() []byte
 }
-
-var RegisteredGames []Game
-
-// RegisterGame append a game to the RegisteredGames list
-func RegisterGame(game Game) {
-	RegisteredGames = append(RegisteredGames, game)
-}
