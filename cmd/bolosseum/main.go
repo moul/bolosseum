@@ -24,6 +24,7 @@ import (
 	"github.com/moul/bolosseum/games/connectfour"
 	"github.com/moul/bolosseum/games/guessnumber"
 	"github.com/moul/bolosseum/games/russianbullet"
+	"github.com/moul/bolosseum/games/shikaku"
 	"github.com/moul/bolosseum/games/tictactoe"
 	"github.com/moul/bolosseum/pkg/log"
 	"github.com/moul/bolosseum/stupid-ias"
@@ -47,8 +48,9 @@ type APIResult struct {
 var availableGames = []string{
 	"coinflip",
 	"connectfour",
-	"russianbullet",
 	"guessnumber",
+	"russianbullet",
+	"shikaku",
 	"tictactoe",
 }
 
@@ -62,6 +64,8 @@ func getGame(gameName string) (games.Game, error) {
 		return russianbullet.NewGame()
 	case "guessnumber":
 		return guessnumber.NewGame()
+	case "shikaku":
+		return shikaku.NewGame()
 	case "tictactoe":
 		return tictactoe.NewGame()
 	default:
