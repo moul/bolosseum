@@ -1,4 +1,5 @@
 SOURCE :=	$(shell find . -name "*.go")
+OWN_PACKAGES := $(shell go list ./... | grep -v vendor)
 
 
 bolosseum: $(SOURCE)
@@ -8,6 +9,11 @@ bolosseum: $(SOURCE)
 .PHONY: docker
 docker:
 	docker build -t moul/bolosseum .
+
+
+.PHONY: test
+test:
+	go test -v $(OWN_PACKAGES)
 
 
 .PHONY: test-coinflip
