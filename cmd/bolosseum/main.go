@@ -36,12 +36,12 @@ import (
 )
 
 type APIStep struct {
-	Type string      `json:"type",omitempty`
-	Data interface{} `json:"data",omitempty`
+	Type string      `json:"type,omitempty"`
+	Data interface{} `json:"data,omitempty"`
 }
 
 type APIResult struct {
-	Steps []APIStep `json:"steps",omitempty`
+	Steps []APIStep `json:"steps,omitempty"`
 }
 
 var availableGames = []string{

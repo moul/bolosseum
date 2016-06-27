@@ -14,7 +14,7 @@ var Cols = 7
 type ConnectfourGame struct {
 	games.BotsBasedGame
 
-	board [][]string `json:"board",omitempty`
+	board [][]string `json:"board,omitempty"`
 }
 
 func NewGame() (*ConnectfourGame, error) {
