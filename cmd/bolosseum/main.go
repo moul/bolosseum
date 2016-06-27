@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/rand"
 	"net/http"
@@ -10,7 +11,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
 	"github.com/googollee/go-socket.io"
 	"github.com/moul/bolosseum"
@@ -25,6 +25,7 @@ import (
 	"github.com/moul/bolosseum/games/guessnumber"
 	"github.com/moul/bolosseum/games/russianbullet"
 	"github.com/moul/bolosseum/games/tictactoe"
+	"github.com/moul/bolosseum/pkg/log"
 	"github.com/moul/bolosseum/stupid-ias"
 	"github.com/moul/bolosseum/stupid-ias/coinflip"
 	"github.com/moul/bolosseum/stupid-ias/connectfour"
@@ -69,7 +70,7 @@ func getGame(gameName string) (games.Game, error) {
 }
 
 func getStupidIA(iaPath string) (stupidias.StupidIA, error) {
-	logrus.Warnf("Getting stupid IA %q", iaPath)
+	log.Debugf("Getting stupid IA %q", iaPath)
 	switch iaPath {
 	case "connectfour":
 		return stupidconnectfour.NewIA()
@@ -87,7 +88,7 @@ func getStupidIA(iaPath string) (stupidias.StupidIA, error) {
 }
 
 func getBot(botPath string, game games.Game) (bots.Bot, error) {
-	logrus.Warnf("Getting bot %q", botPath)
+	log.Debugf("Getting bot %q", botPath)
 
 	switch botPath {
 	case "stupid":
@@ -158,7 +159,7 @@ func main() {
 		},
 	}
 	if err := app.Run(os.Args); err != nil {
-		logrus.Fatalf("%v", err)
+		log.Fatalf("%v", err)
 	}
 }
 
@@ -236,7 +237,7 @@ func server(c *cli.Context) error {
 		}
 
 		// initialize game
-		logrus.Warnf("Initializing game %q", gameName)
+		log.Debugf("Initializing game %q", gameName)
 		game, err := getGame(gameName)
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -244,7 +245,7 @@ func server(c *cli.Context) error {
 			})
 			return
 		}
-		logrus.Warnf("Game: %q: %q", game.Name(), game)
+		log.Debugf("Game: %q: %q", game.Name(), game)
 
 		args := []string{bot1URL, bot2URL}
 
@@ -261,9 +262,9 @@ func server(c *cli.Context) error {
 			bot, err := getBot(botPath, game)
 			if err != nil {
 				hasError = true
-				logrus.Errorf("Failed to initialize bot %q", bot)
+				log.Errorf("Failed to initialize bot %q", bot)
 			} else {
-				logrus.Warnf("Registering bot %q", bot.Path())
+				log.Debugf("Registering bot %q", bot.Path())
 				game.RegisterBot(bot)
 			}
 		}
@@ -291,7 +292,7 @@ func server(c *cli.Context) error {
 		}()
 
 		if err = game.Run("gameid", inputSteps); err != nil {
-			logrus.Errorf("Run error: %v", err)
+			log.Debugf("Run error: %v", err)
 		}
 
 		select {
@@ -314,13 +315,13 @@ func server(c *cli.Context) error {
 	}
 
 	sioServer.On("connection", func(so socketio.Socket) {
-		logrus.Warnf("sio connection: %v", so)
+		log.Debugf("sio connection: %v", so)
 		so.On("run", func(data struct {
 			Game string `json:"game"`
 			Bot1 string `json:"bot1"`
 			Bot2 string `json:"bot2"`
 		}) error {
-			logrus.Warnf("sio run: %v", data)
+			log.Debugf("sio run: %v", data)
 
 			gameName := data.Game
 			bot1URL := data.Bot1
@@ -331,13 +332,13 @@ func server(c *cli.Context) error {
 			}
 
 			// initialize game
-			logrus.Warnf("Initializing game %q", gameName)
+			log.Debugf("Initializing game %q", gameName)
 			game, err := getGame(gameName)
 			if err != nil {
 				return fmt.Errorf("No such game")
 			}
 
-			logrus.Warnf("Game: %q: %q", game.Name(), game)
+			log.Debugf("Game: %q: %q", game.Name(), game)
 
 			args := []string{bot1URL, bot2URL}
 
@@ -351,7 +352,7 @@ func server(c *cli.Context) error {
 				if err != nil {
 					return fmt.Errorf("Failed to initialize bot %q", bot)
 				}
-				logrus.Warnf("Registering bot %q", bot.Path())
+				log.Debugf("Registering bot %q", bot.Path())
 				game.RegisterBot(bot)
 			}
 
@@ -365,14 +366,14 @@ func server(c *cli.Context) error {
 				for step := range outputSteps {
 					writeMutex.Lock()
 					if err := so.Emit("step", step); err != nil {
-						logrus.Errorf("socket.io emit step error: %v", err)
+						log.Errorf("socket.io emit step error: %v", err)
 					}
 					writeMutex.Unlock()
 				}
 			}()
 
 			if err = game.Run("gameid", inputSteps); err != nil {
-				logrus.Errorf("Run error: %v", err)
+				log.Errorf("Run error: %v", err)
 			}
 
 			select {
@@ -391,23 +392,23 @@ func server(c *cli.Context) error {
 		})
 
 		so.On("error", func() {
-			logrus.Warnf("on error")
+			log.Debugf("on error")
 		})
 
 		so.On("disconnection", func() {
-			logrus.Warnf("on disconnect")
+			log.Debugf("on disconnect")
 		})
 	})
 
 	sioServer.On("error", func(so socketio.Socket, err error) {
-		logrus.Errorf("sio error: %v -> %v", so, err)
+		log.Errorf("sio error: %v -> %v", so, err)
 	})
 
 	http.Handle("/socket.io/", sioServer)
 	http.Handle("/", r)
 	//return r.Run(":9000")
 	addr := ":9000"
-	logrus.Warnf("Listening and serving HTTP on %s", addr)
+	log.Debugf("Listening and serving HTTP on %s", addr)
 	return http.ListenAndServe(addr, nil)
 }
 
@@ -426,12 +427,12 @@ func run(c *cli.Context) error {
 	}
 
 	// initialize game
-	logrus.Warnf("Initializing game %q", args[0])
+	log.Debugf("Initializing game %q", args[0])
 	game, err := getGame(args[0])
 	if err != nil {
 		return cli.NewExitError(fmt.Sprintf("No such game %q", args[0]), -1)
 	}
-	logrus.Warnf("Game: %q: %q", game.Name(), game)
+	log.Debugf("Game: %q: %q", game.Name(), game)
 
 	if err = game.CheckArgs(args[1:]); err != nil {
 		return cli.NewExitError(fmt.Sprintf("%v", err), -1)
@@ -443,9 +444,9 @@ func run(c *cli.Context) error {
 		bot, err := getBot(botPath, game)
 		if err != nil {
 			hasError = true
-			logrus.Errorf("Failed to initialize bot %q", bot)
+			log.Errorf("Failed to initialize bot %q", bot)
 		} else {
-			logrus.Warnf("Registering bot %q", bot.Path())
+			log.Debugf("Registering bot %q", bot.Path())
 			game.RegisterBot(bot)
 		}
 	}
@@ -459,24 +460,34 @@ func run(c *cli.Context) error {
 	go func() {
 		for step := range steps {
 			if step.QuestionMessage != nil {
-				logrus.Warnf("bot-%d << %v", step.QuestionMessage.PlayerIndex, *step.QuestionMessage)
+				out, err := json.Marshal(*step.QuestionMessage)
+				if err != nil {
+					log.Errorf("json marshal error: %v", err)
+				} else {
+					log.Infof("bot-%d << %s", step.QuestionMessage.PlayerIndex, out)
+				}
 			} else if step.ReplyMessage != nil {
-				logrus.Warnf("bot-%d >> %v", step.ReplyMessage.PlayerIndex, *step.ReplyMessage)
+				out, err := json.Marshal(*step.ReplyMessage)
+				if err != nil {
+					log.Errorf("json marshal error: %v", err)
+				} else {
+					log.Infof("bot-%d >> %s", step.ReplyMessage.PlayerIndex, out)
+				}
 			} else if step.Error != nil {
-				logrus.Errorf("%v", step.Error)
+				log.Warnf("%v", step.Error)
 				close(steps)
 			} else if step.Message != "" {
-				logrus.Warnf("message: %s", step.Message)
+				log.Infof("message: %s", step.Message)
 			} else if step.Loser != nil {
-				logrus.Warnf("loser: %s", step.Loser.Name())
+				log.Infof("loser: %s", step.Loser.Name())
 			} else if step.Winner != nil {
-				logrus.Warnf("winner: %s", step.Winner.Name())
+				log.Infof("winner: %s", step.Winner.Name())
 				close(steps)
 			} else if step.Draw {
-				logrus.Warnf("Draw")
+				log.Infof("Draw")
 				close(steps)
 			} else {
-				logrus.Errorf("Unknown message type: %v", step)
+				log.Errorf("Unknown message type: %v", step)
 				close(steps)
 			}
 		}
@@ -484,7 +495,7 @@ func run(c *cli.Context) error {
 	}()
 
 	if err = game.Run("gameid", steps); err != nil {
-		logrus.Errorf("Run error: %v", err)
+		log.Errorf("Run error: %v", err)
 	}
 
 	select {

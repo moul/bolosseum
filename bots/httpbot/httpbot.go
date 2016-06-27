@@ -55,7 +55,6 @@ func (b *HttpBot) SendMessage(msg bots.QuestionMessage) (*bots.ReplyMessage, err
 		return nil, fmt.Errorf("invalid status code: %d", resp.StatusCode)
 	}
 
-	//logrus.Warnf("body> %s", strings.TrimSpace(body))
 	// parse json
 	var response bots.ReplyMessage
 	if err = json.Unmarshal([]byte(body), &response); err != nil {

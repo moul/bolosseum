@@ -3,7 +3,6 @@ package connectfour
 import (
 	"fmt"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/moul/bolosseum/bots"
 	"github.com/moul/bolosseum/games"
 )
@@ -163,13 +162,11 @@ func (g *ConnectfourGame) Run(gameID string, steps chan games.GameStep) error {
 		}
 		if winner != nil {
 			steps <- games.GameStep{Winner: winner}
-			//steps <- games.GameStep{Message: fmt.Sprintf("Player %d (%s) won", idx, winner.Name())}
-			//logrus.Warnf("Player %d (%s) won", idx, winner.Name())
 			return nil
 		}
 	}
 
-	logrus.Warnf("Draw")
+	steps <- games.GameStep{Draw: true}
 	return nil
 }
 

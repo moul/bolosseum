@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math/rand"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/moul/bolosseum/bots"
 	"github.com/moul/bolosseum/games"
 )
@@ -59,12 +58,11 @@ func (g *RussianbulletGame) Run(gameID string, steps chan games.GameStep) error 
 		}
 		if i == bulletIndex {
 			steps <- games.GameStep{Loser: g.Bots[idx]}
-			//logrus.Warnf("Player %d (%s) was killed", idx, bot.Name())
 			return nil
 		}
 	}
 
-	logrus.Warnf("Draw")
+	steps <- games.GameStep{Draw: true}
 	return nil
 }
 
