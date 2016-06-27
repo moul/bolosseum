@@ -141,6 +141,20 @@ func main() {
 	app.Usage = "colosseum for bots"
 	app.Version = bolosseum.VERSION
 
+	app.Flags = []cli.Flag{
+		cli.BoolFlag{
+			Name:  "debug, D",
+			Usage: "Enable debug mode",
+		},
+	}
+
+	app.Before = func(c *cli.Context) error {
+		if c.Bool("debug") {
+			log.SetDebug(true)
+		}
+		return nil
+	}
+
 	app.Commands = []cli.Command{
 		{
 			Name:   "run",
