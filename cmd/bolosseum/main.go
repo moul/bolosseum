@@ -32,6 +32,7 @@ import (
 	"github.com/moul/bolosseum/stupid-ias/connectfour"
 	"github.com/moul/bolosseum/stupid-ias/guessnumber"
 	"github.com/moul/bolosseum/stupid-ias/russianbullet"
+	"github.com/moul/bolosseum/stupid-ias/shikaku"
 	"github.com/moul/bolosseum/stupid-ias/tictactoe"
 	"github.com/urfave/cli"
 )
@@ -86,6 +87,8 @@ func getStupidIA(iaPath string) (stupidias.StupidIA, error) {
 		return stupidrussianbullet.NewIA()
 	case "guessnumber":
 		return stupidguessnumber.NewIA()
+	case "shikaku":
+		return stupidshikaku.NewIA()
 	default:
 		return nil, fmt.Errorf("unknown stupid IA %q", iaPath)
 	}
