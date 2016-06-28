@@ -8,13 +8,21 @@ import (
 	"github.com/moul/bolosseum/games"
 )
 
+type round struct {
+	Number int    `json:"number"`
+	Answer string `json:"answer"`
+}
+
 type GuessnumberGame struct {
 	games.BotsBasedGame
+
+	board []round
 }
 
 func NewGame() (*GuessnumberGame, error) {
 	game := GuessnumberGame{}
 	game.Bots = make([]bots.Bot, 0)
+	game.board = make([]round, 0)
 	return &game, nil
 }
 
@@ -41,6 +49,7 @@ func (g *GuessnumberGame) Run(gameID string, steps chan games.GameStep) error {
 		question := bots.QuestionMessage{
 			GameID:      gameID,
 			Players:     len(g.Bots),
+			Board:       g.board,
 			Game:        g.Name(),
 			Action:      "play-turn",
 			PlayerIndex: botIndex,
@@ -57,6 +66,18 @@ func (g *GuessnumberGame) Run(gameID string, steps chan games.GameStep) error {
 			steps <- games.GameStep{Winner: g.Bots[botIndex]}
 			return nil
 		}
+
+		var answer string
+		if targetNumber > reply.Play.(int) {
+			answer = ">"
+		} else {
+			answer = "<"
+		}
+
+		g.board = append(g.board, round{
+			Number: reply.Play.(int),
+			Answer: answer,
+		})
 	}
 }
 
