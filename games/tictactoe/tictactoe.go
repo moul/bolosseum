@@ -2,7 +2,6 @@ package tictactoe
 
 import (
 	"fmt"
-	"sync"
 
 	"github.com/moul/bolosseum/bots"
 	"github.com/moul/bolosseum/games"
@@ -100,8 +99,6 @@ func (g *TictactoeGame) checkBoard() (bots.Bot, error) {
 }
 
 func (g *TictactoeGame) Run(gameID string, steps chan games.GameStep) error {
-	writeMutex := &sync.Mutex{}
-
 	if err := bots.InitTurnBasedBots(g.Bots, g.Name(), gameID); err != nil {
 		return err
 	}
@@ -112,11 +109,15 @@ func (g *TictactoeGame) Run(gameID string, steps chan games.GameStep) error {
 		bot := g.Bots[idx]
 		piece := pieces[idx]
 
+		copyBoard := make(map[string]string)
+		for k, v := range g.board {
+			copyBoard[k] = v
+		}
 		question := bots.QuestionMessage{
 			GameID:      gameID,
 			Game:        g.Name(),
 			Action:      "play-turn",
-			Board:       g.board,
+			Board:       copyBoard,
 			You:         piece,
 			PlayerIndex: idx,
 		}
@@ -128,9 +129,7 @@ func (g *TictactoeGame) Run(gameID string, steps chan games.GameStep) error {
 		reply.PlayerIndex = idx
 
 		steps <- games.GameStep{ReplyMessage: reply}
-		writeMutex.Lock()
 		g.board[reply.Play.(string)] = piece
-		writeMutex.Unlock()
 
 		// check board
 		winner, err := g.checkBoard()
