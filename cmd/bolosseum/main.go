@@ -93,7 +93,7 @@ func getStupidIA(iaPath string) (stupidias.StupidIA, error) {
 	}
 }
 
-func getBot(botPath string, game games.Game) (bots.Bot, error) {
+func getBot(botPath string, game games.Game, web bool) (bots.Bot, error) {
 	log.Debugf("Getting bot %q", botPath)
 
 	switch botPath {
@@ -115,8 +115,14 @@ func getBot(botPath string, game games.Game) (bots.Bot, error) {
 
 	switch scheme {
 	case "file":
+		if web {
+			return nil, fmt.Errorf("file bots are disabled in web mode")
+		}
 		return filebot.NewBot(path)
 	case "stdin":
+		if web {
+			return nil, fmt.Errorf("stdin bots are disabled in web mode")
+		}
 		return stdinbot.NewBot()
 	case "http+get":
 		return httpbot.NewBot(path, "GET", "http")
@@ -268,7 +274,7 @@ func server(c *cli.Context) error {
 		// initialize bots
 		hasError := false
 		for _, botPath := range args {
-			bot, err := getBot(botPath, game)
+			bot, err := getBot(botPath, game, true)
 			if err != nil {
 				hasError = true
 				log.Errorf("Failed to initialize bot %q", bot)
@@ -348,14 +354,21 @@ func server(c *cli.Context) error {
 			}
 
 			// initialize bots
+			fmt.Println("test1")
 			for _, botPath := range args {
-				bot, err := getBot(botPath, game)
+				bot, err := getBot(botPath, game, false)
 				if err != nil {
-					return fmt.Errorf("Failed to initialize bot %q", bot)
+					err := fmt.Errorf("Failed to initialize bot %q", bot)
+					log.Errorf("%v", err)
+					fmt.Println(err)
+					so.Emit("step", APIStep{Type: "error", Data: err})
+					return err
 				}
+				fmt.Println("test2")
 				log.Debugf("Registering bot %q", bot.Path())
 				game.RegisterBot(bot)
 			}
+			fmt.Println("test3")
 
 			// run
 			inputSteps := make(chan games.GameStep)
@@ -438,10 +451,10 @@ func run(c *cli.Context) error {
 	// initialize bots
 	hasError := false
 	for _, botPath := range args[1:] {
-		bot, err := getBot(botPath, game)
+		bot, err := getBot(botPath, game, false)
 		if err != nil {
 			hasError = true
-			log.Errorf("Failed to initialize bot %q", bot)
+			log.Errorf("Failed to initialize bot: %v", err)
 		} else {
 			log.Debugf("Registering bot %q", bot.Path())
 			game.RegisterBot(bot)
