@@ -176,6 +176,13 @@ func main() {
 			Name:   "server",
 			Usage:  "Start a bolosseum web server",
 			Action: server,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "bind-address, b",
+					Usage: "Bind address",
+					Value: ":9000",
+				},
+			},
 		},
 	}
 	if err := app.Run(os.Args); err != nil {
@@ -403,10 +410,8 @@ func server(c *cli.Context) error {
 
 	http.Handle("/socket.io/", sioServer)
 	http.Handle("/", r)
-	//return r.Run(":9000")
-	addr := ":9000"
-	log.Debugf("Listening and serving HTTP on %s", addr)
-	return http.ListenAndServe(addr, nil)
+	log.Debugf("Listening and serving HTTP on %s", c.String("bind-address"))
+	return http.ListenAndServe(c.String("bind-address"), nil)
 }
 
 func listGames(c *cli.Context) error {

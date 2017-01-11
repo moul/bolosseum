@@ -1,1 +1,1 @@
-web: bolosseum server
+web: bolosseum server --bind-address=:$PORT
