@@ -5,6 +5,11 @@ OWN_PACKAGES := $(shell go list ./... | grep -v vendor)
 bolosseum: $(SOURCE)
 	go build -o ./bolosseum ./cmd/bolosseum/main.go
 
+run: up
+
+up:
+	docker-compose up -d --force-recreate --remove-orphans
+
 
 .PHONY: docker
 docker:

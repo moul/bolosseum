@@ -1,0 +1,18 @@
+version: '2'
+
+services:
+  bolosseum:
+    build: .
+    ports:
+      - 9000
+    environment:
+      - VIRTUAL_HOST=bolosseum.m.42.am
+      - VIRTUAL_PORT=9000
+    networks:
+      - default
+      - service-proxy
+
+networks:
+  service-proxy:
+    external: true
+  
