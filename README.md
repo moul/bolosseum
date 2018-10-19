@@ -1,7 +1,7 @@
 # bolosseum
 :hocho: colosseum for bots
 
-[![Build Status](https://travis-ci.org/moul/bolosseum.svg?branch=master)](https://travis-ci.org/moul/bolosseum)
+[![Build Status](https://travis-ci.org/moul/bolosseum.svg?branch=master)](https://travis-ci.org/moul/bolosseum) [![GuardRails badge](https://badges.production.guardrails.io/moul/bolosseum.svg)](https://www.guardrails.io)
 
 ## Usage
 
